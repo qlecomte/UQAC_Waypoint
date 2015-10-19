@@ -3,7 +3,7 @@ Le projet de dev mobile, à base de GPS et de QR Code
 
 ### Liste des fonctionnalités à implémenter
 * ~~Récupérer la position via GPS.~~
-* ~~Récupérer la position via Wi-fi.~~
+* Récupérer la position via Wi-fi.
 * ~~Scanner un QR Code.~~
 * Récupération des informations via internet ou base de données interne.
 * Base de données hors-ligne pour accéder .
