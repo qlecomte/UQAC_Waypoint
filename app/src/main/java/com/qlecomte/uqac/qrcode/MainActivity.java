@@ -33,7 +33,14 @@ public class MainActivity extends Activity {
             }
         });
 
-
+        Button b3 = (Button)findViewById(R.id.button3);
+        b3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, MapsActivity.class);
+                startActivity(i);
+            }
+        });
 
     }
 
