@@ -79,7 +79,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMapLon
     private void setUpMap() {
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
         mMap.setOnMapLongClickListener(this);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, 14));
         mMap.addMarker(new MarkerOptions().position(new LatLng(48.420128,-71.052198)).title("Université du Québec à Chicoutimi"));
         mMap.addMarker(new MarkerOptions().position(new LatLng(48.404702,-71.055185)).title("Place du Royaume"));
         mMap.addMarker(new MarkerOptions().position(new LatLng(48.429142,-71.052359)).title("Tour à Bières"));
