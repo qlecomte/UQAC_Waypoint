@@ -1,8 +1,12 @@
 package com.qlecomte.uqac.qrcode;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
+import android.widget.EditText;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,6 +19,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMapLon
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private static final LatLng SAGUENAY = new LatLng(48.427976,-71.068516);
+    private String nomMarqueur;
 
 
     @Override
@@ -33,12 +38,29 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMapLon
     }
 
     @Override
-    public void onMapLongClick(LatLng point)
+    public void onMapLongClick(final LatLng point)
     {
-        mMap.addMarker(new MarkerOptions()
-            .position(point)
-            .title("Marqueur")
-            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+        //Entrer le nom du marqueur
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        final EditText boxText = new EditText(this);
+        boxText.setHint("Nom du Marqueur");
+
+        alert.setView(boxText);
+        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                nomMarqueur = boxText.getText().toString();
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(point)
+                        .title(nomMarqueur)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+            }
+        }).show();
+
+
     }
 
 
