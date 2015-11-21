@@ -169,7 +169,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         //float accuracy = location.getAccuracy();
 
         myLocation.setPosition(new LatLng(latitude, longitude));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), ZOOM));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
 
 
     }
