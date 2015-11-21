@@ -77,7 +77,7 @@ public class QRCodeActivity extends Activity {
     /**
      * A safe way to open the camera.
      */
-    void openCamera() {
+    private void openCamera() {
         if (mCamera == null){
             mCamera = getCameraInstance();
             mPreview = new CameraPreview(this, mCamera, previewCb, autoFocusCB);
@@ -91,7 +91,7 @@ public class QRCodeActivity extends Activity {
     /**
      * A safe way to release an instance of the Camera object.
      */
-    void releaseCamera() {
+    private void releaseCamera() {
         if (mCamera != null) {
             previewing = false;
             preview.setVisibility(View.INVISIBLE);

@@ -1,126 +1,156 @@
 package com.qlecomte.uqac.qrcode;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import java.util.Locale;
+import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
+import com.yalantis.contextmenu.lib.MenuObject;
+import com.yalantis.contextmenu.lib.MenuParams;
+import com.yalantis.contextmenu.lib.interfaces.OnMenuItemClickListener;
+import com.yalantis.contextmenu.lib.interfaces.OnMenuItemLongClickListener;
 
-public class MainActivity extends Activity implements TextToSpeech.OnInitListener {
+import java.util.ArrayList;
+import java.util.List;
 
-    private TextToSpeech mTts;
+public class MainActivity extends FragmentActivity implements OnMenuItemClickListener,
+        OnMenuItemLongClickListener {
+
+    private FragmentManager fragmentManager;
+    private DialogFragment mMenuDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fragmentManager = getSupportFragmentManager();
+        initMenuFragment();
+        addFragment(new MapsFragment(), true, R.id.container);
 
-        Button b1 = (Button)findViewById(R.id.button);
-        b1.setOnClickListener(new View.OnClickListener() {
+        ImageView b = (ImageView)findViewById(R.id.menu_btn);
+        b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, QRCodeActivity.class);
-                startActivity(i);
-            }
-        });
-
-        Button b2 = (Button)findViewById(R.id.button2);
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, LocationActivity.class);
-                startActivity(i);
-            }
-        });
-
-        Button b3 = (Button)findViewById(R.id.button3);
-        b3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, MapsActivity.class);
-                startActivity(i);
-            }
-        });
-
-        Button b4 = (Button)findViewById(R.id.button4);
-        b4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent checkIntent = new Intent();
-                checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-                startActivityForResult(checkIntent, 0x01);
-            }
-        });
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mTts != null)
-            mTts.shutdown();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    protected void onActivityResult( int requestCode, int resultCode, Intent data) {
-        if (requestCode == 0x01) {
-            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
-                // Succès, au moins un moteur de TTS à été trouvé, on l'instancie
-                mTts = new TextToSpeech(this, this);
-
-                if (mTts.isLanguageAvailable(Locale.FRANCE) == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
-                    mTts.setLanguage(Locale.FRANCE);
+                if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
+                    mMenuDialogFragment.show(fragmentManager, ContextMenuDialogFragment.TAG);
                 }
-
-
-            } else {
-                // Echec, aucun moteur n'a été trouvé, on propose à l'utilisateur d'en installer un depuis le Market
-                Intent installIntent = new Intent();
-                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                startActivity(installIntent);
             }
+        });
+    }
+
+    private void initMenuFragment() {
+        MenuParams menuParams = new MenuParams();
+        menuParams.setActionBarSize((int) getResources().getDimension(R.dimen.menu_size));
+        menuParams.setMenuObjects(getMenuObjects());
+        menuParams.setClosableOutside(false);
+        mMenuDialogFragment = ContextMenuDialogFragment.newInstance(menuParams);
+    }
+
+    private List<MenuObject> getMenuObjects() {
+        // You can use any [resource, bitmap, drawable, color] as image:
+        // item.setResource(...)
+        // item.setBitmap(...)
+        // item.setDrawable(...)
+        // item.setColor(...)
+        // You can set image ScaleType:
+        // item.setScaleType(ScaleType.FIT_XY)
+        // You can use any [resource, drawable, color] as background:
+        // item.setBgResource(...)
+        // item.setBgDrawable(...)
+        // item.setBgColor(...)
+        // You can use any [color] as text color:
+        // item.setTextColor(...)
+        // You can set any [color] as divider color:
+        // item.setDividerColor(...)
+
+        /*
+         * Close
+         * QR Code
+         * Gestion Waypoints
+         * Options
+         */
+
+
+        List<MenuObject> menuObjects = new ArrayList<>();
+
+        MenuObject close = new MenuObject();
+        close.setResource(R.drawable.close);
+
+        MenuObject qrCode = new MenuObject();
+        qrCode.setResource(R.drawable.qrcode);
+
+        MenuObject waypoint = new MenuObject();
+        waypoint.setResource(R.drawable.waypoint);
+
+        MenuObject settings = new MenuObject();
+        settings.setResource(R.drawable.settings);
+
+
+
+        menuObjects.add(close);
+        menuObjects.add(qrCode);
+        menuObjects.add(waypoint);
+        menuObjects.add(settings);
+
+        return menuObjects;
+    }
+
+    private void addFragment(android.support.v4.app.Fragment fragment, boolean addToBackStack, int containerId) {
+        invalidateOptionsMenu();
+        String backStackName = fragment.getClass().getName();
+        boolean fragmentPopped = fragmentManager.popBackStackImmediate(backStackName, 0);
+        if (!fragmentPopped) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.add(containerId, fragment, backStackName)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            if (addToBackStack)
+                transaction.addToBackStack(backStackName);
+            transaction.commit();
         }
     }
 
     @Override
-    public void onInit(int status) {
-        String tts = "Text To Speech";
-        if (status == TextToSpeech.SUCCESS) {
-
-            if (Build.VERSION.SDK_INT < 21) {
-                mTts.speak(tts, TextToSpeech.QUEUE_FLUSH, null);
-            } else {
-                mTts.speak(tts, TextToSpeech.QUEUE_FLUSH, null, null);
-            }
+    public void onBackPressed() {
+        if (mMenuDialogFragment != null && mMenuDialogFragment.isAdded()) {
+            mMenuDialogFragment.dismiss();
+        } else{
+            finish();
         }
     }
-}
 
+    @Override
+    public void onMenuItemClick(View clickedView, int position) {
+        Intent i;
+        switch (position){
+            case 1:
+                i = new Intent(this, QRCodeActivity.class);
+                startActivity(i);
+                break;
+
+            case 2:
+                i = new Intent(this, WaypointManagerActivity.class);
+                startActivity(i);
+                break;
+
+            case 3:
+                i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
+                break;
+        }
+
+
+
+    }
+
+    @Override
+    public void onMenuItemLongClick(View clickedView, int position) {
+        Toast.makeText(this, "Long clicked on position: " + position, Toast.LENGTH_SHORT).show();
+    }
+
+}

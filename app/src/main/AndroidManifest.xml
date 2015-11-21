@@ -33,10 +33,6 @@
             android:name=".ResultQRCodeActivity"
             android:label="@string/title_activity_result_qrcode" >
         </activity>
-        <activity
-            android:name=".LocationActivity"
-            android:label="@string/title_activity_location" >
-        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -46,8 +42,12 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" >
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name=".WaypointManagerActivity"
+            android:label="@string/title_activity_waypoint_manager" >
         </activity>
     </application>
 
