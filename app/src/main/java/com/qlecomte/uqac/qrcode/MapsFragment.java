@@ -6,10 +6,10 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +24,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
 
 public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener, LocationListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+
     private static final LatLng SAGUENAY = new LatLng(48.427976,-71.068516);
     private static final int ZOOM = 14;
+
+    private static final float LOCATION_MARKER = BitmapDescriptorFactory.HUE_YELLOW;
+    private static final float WAYPOINT_MARKER = BitmapDescriptorFactory.HUE_CYAN;
+
+
+
     private String nomMarqueur;
     private Marker myLocation;
 
@@ -53,7 +62,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     @Override
     public void onResume() {
         super.onResume();
+
+        Log.i("Map", "onResume");
+
         setUpMapIfNeeded();
+
+        updateMarkersMap();
 
         manager = (LocationManager) getActivity().getSystemService(Activity.LOCATION_SERVICE);
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -70,6 +84,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         } catch (SecurityException e) {
             e.printStackTrace();
         }
+
+
     }
 
     @Override
@@ -103,7 +119,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                 mMap.addMarker(new MarkerOptions()
                         .position(point)
                         .title(nomMarqueur)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                        .icon(BitmapDescriptorFactory.defaultMarker(WAYPOINT_MARKER)));
+
+                Waypoint w = new Waypoint(nomMarqueur, point.latitude, point.longitude, WAYPOINT_MARKER);
+                DatabaseManager.get().addWaypoint(w);
+
+
             }
         }).show();
 
@@ -136,6 +157,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                 setUpMap();
             }
         }
+
     }
 
     /**
@@ -147,30 +169,39 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private void setUpMap() {
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
 
+        Log.i("Map", "setUpMap");
 
         mMap.setOnMapLongClickListener(this);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, ZOOM));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(48.420128, -71.052198)).title("Université du Québec à Chicoutimi"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(48.404702, -71.055185)).title("Place du Royaume"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(48.429142, -71.052359)).title("Tour à Bières"));
+
+    }
+
+    private void updateMarkersMap(){
+        List<Waypoint> waypoints = DatabaseManager.get().getWaypoints();
+
+        mMap.clear();
+
+        for (Waypoint w : waypoints){
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(w.getLatitude(), w.getLongitude()))
+                    .title(w.getName())
+                    .icon(BitmapDescriptorFactory.defaultMarker(w.getIcon())));
+        }
+
         myLocation = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(0, 0))
                 .title("Position")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                .icon(BitmapDescriptorFactory.defaultMarker(LOCATION_MARKER)));
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
-        //double altitude = location.getAltitude();
-        //float accuracy = location.getAccuracy();
 
         myLocation.setPosition(new LatLng(latitude, longitude));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
-
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
 
     }
 

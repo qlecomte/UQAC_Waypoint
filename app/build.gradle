@@ -31,6 +31,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.google.android.gms:play-services:8.1.0'
     compile 'com.yalantis:contextmenu:1.0.4'
+    compile 'com.hudomju:swipe-to-dismiss-undo:1.0'
+
 }
 
 task copyNativeLibs(type: Copy) {
