@@ -6,12 +6,15 @@
     <string name="title_activity_qrcode">QRCodeActivity</string>
     <string name="title_activity_result_qrcode">ResultQRCodeActivity</string>
     <string name="title_activity_maps">Map</string>
-    <string name="menuprincipal">Bouton Menu Principal</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="action_settings">Settings</string>
     <string name="title_activity_waypoint_manager">WaypointManagerActivity</string>
+
+    <string name="menuprincipal">Bouton Menu Principal</string>
+    <string name="action_settings">Settings</string>
+
     <string name="deleted">Waypoint supprimé</string>
     <string name="undo">Annuler</string>
 
+    <string name="language_title">Langues disponibles</string>
 
 </resources>

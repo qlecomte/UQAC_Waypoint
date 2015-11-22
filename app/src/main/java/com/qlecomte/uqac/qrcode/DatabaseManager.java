@@ -38,18 +38,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // Common column names
     private static final String KEY_ID = "id";
 
-    // Order Table Column Names
+    // Waypoints Column Names
     private static final String KEY_NAME = "name";
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
+    private static final String KEY_FAVORITE = "favorite";
     private static final String KEY_ICON = "icon";
 
     // Table Create Statement
     private static final String CREATE_WAYPOINT_TABLE = "CREATE TABLE " + TABLE_WAYPOINTS + " ( "
             + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + KEY_NAME + " TEXT, "
-            + KEY_LATITUDE +" INTEGER, "
-            + KEY_LONGITUDE +" INTEGER,"
+            + KEY_LATITUDE +" REAL, "
+            + KEY_LONGITUDE +" REAL, "
+            + KEY_FAVORITE + " INTEGER, "
             + KEY_ICON + " INTEGER ) ";
 
     private DatabaseManager() {
@@ -77,6 +79,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(KEY_NAME, w.getName());
         values.put(KEY_LATITUDE, w.getLatitude());
         values.put(KEY_LONGITUDE, w.getLongitude());
+        values.put(KEY_FAVORITE, w.isFavorite() ? 1 : 0);
         values.put(KEY_ICON, w.getIcon());
 
         db.insert(TABLE_WAYPOINTS, null, values);
@@ -93,7 +96,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 w.setName(cursor.getString(1));
                 w.setLatitude(Double.parseDouble(cursor.getString(2)));
                 w.setLongitude(Double.parseDouble(cursor.getString(3)));
-                w.setIcon(Float.parseFloat(cursor.getString(4)));
+                w.setFavorite(Integer.parseInt(cursor.getString(4)) == 1);
+                w.setIcon(Float.parseFloat(cursor.getString(5)));
                 waypoints.add(w);
             } while (cursor.moveToNext());
         }
@@ -101,6 +105,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cursor.close();
 
         return waypoints;
+    }
+
+    public void updateWaypoint(Waypoint w) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_FAVORITE, w.isFavorite() ? 1 : 0);
+
+        db.update(TABLE_WAYPOINTS, // table
+                values, // column/value
+                KEY_NAME + " = ?", // selections
+                new String[] { w.getName() });
+
     }
 
     public void deleteWaypoint(Waypoint part) {

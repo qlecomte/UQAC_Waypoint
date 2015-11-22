@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference android:title="@string/language_title"
+        android:key="language"
+        android:summary="Français"
+        android:entries="@array/languageArray"
+        android:entryValues="@array/languageValues"
+        android:defaultValue="Français" />
+
+    <PreferenceScreen
+        android:title="Notifications">
+
+        <CheckBoxPreference android:title="Notification de proximité"
+            android:defaultValue="false"
+            android:summary="Une notification sera reçue chaque fois que vous serez proche d'un point d'interêt."
+            android:key="notification_proximity" />
+
+        <CheckBoxPreference android:title="Notification de promotions"
+            android:defaultValue="false"
+            android:summary="Une notification sera reçue chaque fois qu'une promotion intéressante arrive sur un de vos points d'interêt."
+            android:key="notification_promotion" />
+
+        <CheckBoxPreference android:title="Synthèse vocale"
+            android:defaultValue="false"
+            android:summary="Plutôt que des notifications, chaque fois que vous êtes en voiture, vous recevrez une alerte vocale vous précisant le point d'interêt."
+            android:key="vocal_synthesis" />
+
+    </PreferenceScreen>
+
+    <Preference android:title="Noter l'application" >
+        <intent android:action="android.intent.action.VIEW"
+            android:data="market://details?id=com.google.android.googlequicksearchbox" />
+    </Preference>
+
+</PreferenceScreen>

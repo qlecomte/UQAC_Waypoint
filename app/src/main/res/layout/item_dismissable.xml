@@ -5,15 +5,30 @@
     android:id="@+id/lyt_container"
     android:background="@color/gray_background">
 
-    <TextView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:height="@dimen/list_item_height"
-        android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:id="@+id/txt_data"
-        android:background="@android:color/white" />
+        android:layout_height="@dimen/list_item_height"
+        android:background="@android:color/white">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:id="@+id/txt_data"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="Item favori"
+            android:id="@+id/favorite"
+            android:layout_margin="12dp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

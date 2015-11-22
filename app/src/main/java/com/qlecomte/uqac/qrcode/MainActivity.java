@@ -25,6 +25,8 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
     private FragmentManager fragmentManager;
     private DialogFragment mMenuDialogFragment;
 
+    private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +137,7 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
 
             case 2:
                 i = new Intent(this, WaypointManagerActivity.class);
-                startActivity(i);
+                startActivityForResult(i, WAYPOINTMANAGER_REQUESTCODE);
                 break;
 
             case 3:
@@ -153,4 +155,17 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
         Toast.makeText(this, "Long clicked on position: " + position, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == WAYPOINTMANAGER_REQUESTCODE) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                if (data != null){
+                    MapsFragment mapsFragment = (MapsFragment)getSupportFragmentManager().findFragmentById(R.id.container);
+                    mapsFragment.moveMap(data.getDoubleExtra("latitude", 0), data.getDoubleExtra("longitude", 0));
+                }
+            }
+        }
+
+    }
 }

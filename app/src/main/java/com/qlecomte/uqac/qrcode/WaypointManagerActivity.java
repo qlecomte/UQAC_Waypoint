@@ -1,6 +1,7 @@
 package com.qlecomte.uqac.qrcode;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hudomju.swipe.SwipeToDismissTouchListener;
 import com.hudomju.swipe.adapter.ListViewAdapter;
@@ -27,6 +28,12 @@ public class WaypointManagerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waypoint_manager);
         init((ListView) findViewById(R.id.list_view));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        touchListener.processPendingDismisses();
     }
 
     private void init(ListView listView) {
@@ -56,7 +63,13 @@ public class WaypointManagerActivity extends Activity {
                     touchListener.processPendingDismisses();
                 }
                 else{
-                    Toast.makeText(WaypointManagerActivity.this, "ID " + id, Toast.LENGTH_SHORT).show();
+
+                    Intent data = new Intent();
+                    data.putExtra("latitude", adapter.getItem(position).getLatitude());
+                    data.putExtra("longitude", adapter.getItem(position).getLongitude());
+                    setResult(RESULT_OK, data);
+
+                    finish();
                 }
             }
         });
@@ -96,7 +109,7 @@ public class WaypointManagerActivity extends Activity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 
             ViewHolder viewHolder = convertView == null
                     ? new ViewHolder(convertView = LayoutInflater.from(parent.getContext())
@@ -115,8 +128,32 @@ public class WaypointManagerActivity extends Activity {
                 }
             });
 
+            final ImageView fav = (ImageView)convertView.findViewById(R.id.favorite);
+            fav.setImageResource(favoriteResource(waypoints.get(position).isFavorite()));
+            fav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boolean futurFavoriteState = !waypoints.get(position).isFavorite();
+
+                    waypoints.get(position).setFavorite(futurFavoriteState);
+                    DatabaseManager.get().updateWaypoint(waypoints.get(position));
+                    fav.setImageResource(favoriteResource(futurFavoriteState));
+
+                }
+            });
+
 
             return convertView;
         }
+
+        public int favoriteResource(boolean b){
+            if (b)
+                return R.drawable.starfull;
+            else
+                return R.drawable.starempty;
+
+        }
     }
+
+
 }

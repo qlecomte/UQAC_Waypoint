@@ -37,8 +37,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private static final float LOCATION_MARKER = BitmapDescriptorFactory.HUE_YELLOW;
     private static final float WAYPOINT_MARKER = BitmapDescriptorFactory.HUE_CYAN;
 
-
-
     private String nomMarqueur;
     private Marker myLocation;
 
@@ -201,7 +199,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         double longitude = location.getLongitude();
 
         myLocation.setPosition(new LatLng(latitude, longitude));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
 
     }
 
@@ -215,6 +212,10 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
     @Override
     public void onProviderDisabled(String provider) {
+    }
+
+    public void moveMap(double latitude, double longitude){
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
     }
 
 }
