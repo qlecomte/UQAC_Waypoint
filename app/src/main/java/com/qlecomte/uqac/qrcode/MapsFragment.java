@@ -2,7 +2,11 @@ package com.qlecomte.uqac.qrcode;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,7 +32,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.List;
 
 
-public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener, LocationListener {
+public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -40,7 +45,21 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private String nomMarqueur;
     private Marker myLocation;
 
-    private LocationManager manager;
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                Log.d("MapsFragment", "Receive Broadcast" + bundle.toString());
+
+                double latitude = bundle.getDouble("latitude");
+                double longitude = bundle.getDouble("longitude");
+
+                myLocation.setPosition(new LatLng(latitude, longitude));
+            }
+        }
+    };
 
 
     @Nullable
@@ -61,41 +80,20 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     public void onResume() {
         super.onResume();
 
-        Log.i("Map", "onResume");
-
         setUpMapIfNeeded();
-
         updateMarkersMap();
 
-        manager = (LocationManager) getActivity().getSystemService(Activity.LOCATION_SERVICE);
-        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            try {
-                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 10, this);
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            }
-        }
+        Intent i = new Intent (getActivity(), LocationService.class);
 
-
-        try {
-            manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-
+        getActivity().registerReceiver(receiver, new IntentFilter(LocationService.LOCATION));
+        getActivity().startService(i);
 
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        try {
-            manager.removeUpdates(this);
-        }catch (SecurityException e){
-            e.printStackTrace();
-        }
-
+        getActivity().unregisterReceiver(receiver);
     }
 
     @Override
@@ -192,30 +190,9 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                 .icon(BitmapDescriptorFactory.defaultMarker(LOCATION_MARKER)));
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-
-        myLocation.setPosition(new LatLng(latitude, longitude));
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
-
     public void moveMap(double latitude, double longitude){
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
     }
+
 
 }
