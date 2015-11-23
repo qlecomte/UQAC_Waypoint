@@ -1,5 +1,7 @@
 package com.qlecomte.uqac.qrcode;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +9,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 public class LocationService extends Service
 {
@@ -15,8 +18,9 @@ public class LocationService extends Service
     private LocationManager mLocationManager = null;
     private LocationListener mLocationListener;
 
-    private static final int LOCATION_INTERVAL_MS = 60*1000;
+    private static final int LOCATION_INTERVAL_MS = 1000;
     private static final float LOCATION_DISTANCE_METERS = 50f;
+    private static final int NOTIFICATION_ID = 2653;
 
     public static final String LOCATION = "com.qlecomte.uqac.qrcode.locationChanged";
 
@@ -33,7 +37,26 @@ public class LocationService extends Service
         {
             //Log.e(TAG, "onLocationChanged: " + location);
             mLastLocation.set(location);
+
             broadcastLocation();
+
+            //l1.distanceTo(l2);
+
+
+            // Regarder les waypoints à proximité, et envoyer une notification.
+            Notification.Builder mBuilder = new Notification.Builder(LocationService.this)
+                    .setSmallIcon(R.drawable.waypointwhite)
+                    .setContentTitle("My notification")
+                    .setAutoCancel(true)
+                    .setContentText("Hello World!");
+
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            // mId allows you to update the notification later on.
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.getNotification());
+
+
+
         }
         @Override
         public void onProviderDisabled(String provider)
@@ -126,8 +149,9 @@ public class LocationService extends Service
         data.putExtra("latitude", mLocationListener.mLastLocation.getLatitude());
         data.putExtra("longitude", mLocationListener.mLastLocation.getLongitude());
 
-        //Log.d(TAG, "Send Broadcast : " + mLocationListener.mLastLocation.toString());
+        Log.d(TAG, "Send Broadcast : " + mLocationListener.mLastLocation.toString());
 
         sendBroadcast(data);
     }
+
 }
