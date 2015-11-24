@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.List;
+
 public class LocationService extends Service
 {
     private static final String TAG = "LocationService";
@@ -18,11 +20,14 @@ public class LocationService extends Service
     private LocationManager mLocationManager = null;
     private LocationListener mLocationListener;
 
-    private static final int LOCATION_INTERVAL_MS = 1000;
+    private static final int LOCATION_INTERVAL_MS = 10000;
     private static final float LOCATION_DISTANCE_METERS = 50f;
     private static final int NOTIFICATION_ID = 2653;
 
     public static final String LOCATION = "com.qlecomte.uqac.qrcode.locationChanged";
+
+    private NotificationManager mNotificationManager;
+
 
     private class LocationListener implements android.location.LocationListener{
         Location mLastLocation;
@@ -41,22 +46,32 @@ public class LocationService extends Service
             broadcastLocation();
 
             //l1.distanceTo(l2);
+            List<Waypoint> listeWaypoints = DatabaseManager.get().getWaypoints();
+
+            for (Waypoint w : listeWaypoints) {
+
+                if(calculDistance(location, w) <= 500.0f)
+                {
+                    Notification.Builder mBuilder = new Notification.Builder(LocationService.this)
+                            .setSmallIcon(R.drawable.waypointwhite)
+                            .setContentTitle("Point d'intérêt proche !")
+                            .setAutoCancel(true)
+                            .setContentText("Point d'intérêt à moins de 500m : " + w.getName());
+
+                    // mId allows you to update the notification later on.
+                    mNotificationManager.notify(NOTIFICATION_ID, mBuilder.getNotification());
+                }
+
+            }
+
+        }
 
 
-            // Regarder les waypoints à proximité, et envoyer une notification.
-            Notification.Builder mBuilder = new Notification.Builder(LocationService.this)
-                    .setSmallIcon(R.drawable.waypointwhite)
-                    .setContentTitle("My notification")
-                    .setAutoCancel(true)
-                    .setContentText("Hello World!");
-
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            // mId allows you to update the notification later on.
-            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.getNotification());
-
-
-
+        public float calculDistance(Location positionActuelle, Waypoint waypoint)
+        {
+            float[] resultat = new float[3];
+            Location.distanceBetween(positionActuelle.getLatitude(), positionActuelle.getLongitude(), waypoint.getLatitude(), waypoint.getLongitude(), resultat);
+            return resultat[0];
         }
         @Override
         public void onProviderDisabled(String provider)
@@ -107,6 +122,8 @@ public class LocationService extends Service
         } catch (IllegalArgumentException ex) {
             //Log.d(TAG, "gps provider does not exist " + ex.getMessage());
         }*/
+
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -117,7 +134,7 @@ public class LocationService extends Service
 
         broadcastLocation();
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
 
