@@ -99,30 +99,35 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     @Override
     public void onMapLongClick(final LatLng point)
     {
-        //Entrer le nom du marqueur
-        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-
         final EditText boxText = new EditText(getActivity());
         boxText.setHint("Nom du Marqueur");
 
-        alert.setView(boxText);
-        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        new AlertDialog.Builder(getActivity())
+                .setView(boxText)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                nomMarqueur = boxText.getText().toString();
+                        nomMarqueur = boxText.getText().toString();
 
-                mMap.addMarker(new MarkerOptions()
-                        .position(point)
-                        .title(nomMarqueur)
-                        .icon(BitmapDescriptorFactory.defaultMarker(WAYPOINT_MARKER)));
+                        mMap.addMarker(new MarkerOptions()
+                                .position(point)
+                                .title(nomMarqueur)
+                                .icon(BitmapDescriptorFactory.defaultMarker(WAYPOINT_MARKER)));
 
-                Waypoint w = new Waypoint(nomMarqueur, point.latitude, point.longitude, WAYPOINT_MARKER);
-                DatabaseManager.get().addWaypoint(w);
+                        Waypoint w = new Waypoint(nomMarqueur, point.latitude, point.longitude, WAYPOINT_MARKER);
+                        DatabaseManager.get().addWaypoint(w);
 
 
-            }
-        }).show();
+                    }
+                })
+                .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
 
 
     }
