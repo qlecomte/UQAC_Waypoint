@@ -25,3 +25,29 @@ Le projet de dev mobile, à base de GPS et de QR Code
 #### Autres notes 
 * L'écran principal doit être la carte Google Maps, avec un menu déroulant.
 * Si pas de réseau, lui mettre un écran blanc (plutot qu'une erreur GMaps), et le lui dire.
+
+**Sprint 1** (à faire pour le 4 décembre)
+
+* Quentin : Revoir le Google Play Services Location.
+* Quentin : Si plusieurs notifications, faire des sous notif "à la Gmail".
+* Quentin : Supprimer les promotions.
+
+* Thibaud : Déplacer le menu, accessible partout (pas de bouton pour accéder au menu). Barre en bas.
+* Thibaud : Créer les modes piétons / voiture. (Bouton double état)
+
+* Maxime : Supprimer les étoiles, mettre les distances à la place.
+
+* Sullivan : Activer les options.
+* Sullivan : Choisir la distance de sélection.
+* Sullivan : Valeurs par défaut a changer éventuellement (500m / 1500m de base).
+
+**Sprint 2** (à faire pour le 14 Décembre)
+
+Faire des pages templates pour le QR Code.
+- Nom
+- Adresse
+- Diaporama de photos
+
+Faire template Waypoint
+- Nom
+- Photo
