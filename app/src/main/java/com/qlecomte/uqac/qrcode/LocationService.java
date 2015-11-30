@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -16,6 +17,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
@@ -30,7 +32,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 30000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
@@ -61,7 +63,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     private NotificationManager mNotificationManager;
-    private static final int NOTIFICATION_ID = 2653;
+    private static final String GROUP_NOTIF_STR = "group_notif";
+    private static final int BASE_NOTIF_ID = 2653;
 
 
     @Override
@@ -74,7 +77,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public void onCreate() {
         super.onCreate();
 
-        mRequestingLocationUpdates = false;
+        mRequestingLocationUpdates = true;
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -92,6 +95,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
             startLocationUpdates();
         }
+
+        broadcastLocation();
 
         return START_STICKY;
     }
@@ -153,7 +158,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         broadcastLocation();
-        notificationIfCloseToWaypoint();
+        notificationAlert();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -197,31 +202,60 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
     private void broadcastLocation(){
-        // TODO : faire la méthode.
-        Intent data = new Intent(LOCATION);
-        data.putExtra("latitude", mCurrentLocation.getLatitude());
-        data.putExtra("longitude", mCurrentLocation.getLongitude());
 
-        sendBroadcast(data);
+        if (mCurrentLocation != null) {
+            Intent data = new Intent(LOCATION);
+            data.putExtra("latitude", mCurrentLocation.getLatitude());
+            data.putExtra("longitude", mCurrentLocation.getLongitude());
+
+            sendBroadcast(data);
+        }
     }
 
-    private void notificationIfCloseToWaypoint(){
+    private void notificationAlert(){
+
         List<Waypoint> listeWaypoints = DatabaseManager.get().getWaypoints();
+        List<Waypoint> listeCloseWaypoint = new ArrayList<>();
 
         for (Waypoint w : listeWaypoints) {
 
             if(calculDistance(mCurrentLocation, w) <= DISTANCE_WAYPOINT_ALERT_IN_METERS)
             {
-                Notification.Builder mBuilder = new Notification.Builder(LocationService.this)
+                listeCloseWaypoint.add(w);
+                /*Notification notif = new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.waypointwhite)
                         .setContentTitle("Point d'intérêt proche !")
                         .setAutoCancel(true)
-                        .setContentText("Point d'intérêt à moins de 500m : " + w.getName());
+                        .setContentText("Point d'intérêt à moins de 500m : " + w.getName())
+                        .setGroup(GROUP_NOTIF_STR)
+                        .setGroupSummary(true)
+                        .build();
+
 
                 // mId allows you to update the notification later on.
-                mNotificationManager.notify(NOTIFICATION_ID, mBuilder.getNotification());
-            }
+                mNotificationManager.notify(BASE_NOTIF_ID+index, notif);*/
 
+
+
+            }
+        }
+
+        if (listeCloseWaypoint.size() > 0) {
+            NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+            for (Waypoint w : listeCloseWaypoint)
+                inboxStyle.addLine(w.getName() + " - " + (int)calculDistance(mCurrentLocation, w)+"m");
+            //inboxStyle.setBigContentTitle(listeCloseWaypoint.size() + " Waypoints proches");
+            inboxStyle.setSummaryText("Waypoint");
+
+            Notification summaryNotification = new NotificationCompat.Builder(this)
+                    .setContentTitle(listeCloseWaypoint.size() + " Waypoints proches")
+                    .setSmallIcon(R.drawable.waypointwhite)
+                    .setStyle(inboxStyle)
+                    .setGroup(GROUP_NOTIF_STR)
+                    .setGroupSummary(true)
+                    .build();
+
+            mNotificationManager.notify(BASE_NOTIF_ID, summaryNotification);
         }
     }
 

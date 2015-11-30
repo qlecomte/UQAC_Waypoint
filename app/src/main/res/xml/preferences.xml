@@ -15,11 +15,6 @@
             android:summary="Une notification sera reçue chaque fois que vous serez proche d'un point d'interêt."
             android:key="notification_proximity" />
 
-        <CheckBoxPreference android:title="Notification de promotions"
-            android:defaultValue="false"
-            android:summary="Une notification sera reçue chaque fois qu'une promotion intéressante arrive sur un de vos points d'interêt."
-            android:key="notification_promotion" />
-
         <CheckBoxPreference android:title="Synthèse vocale"
             android:defaultValue="false"
             android:summary="Plutôt que des notifications, chaque fois que vous êtes en voiture, vous recevrez une alerte vocale vous précisant le point d'interêt."

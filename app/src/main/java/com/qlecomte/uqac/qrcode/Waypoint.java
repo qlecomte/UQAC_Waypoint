@@ -7,14 +7,12 @@ public class Waypoint {
     private double latitude;
     private double longitude;
     private float icon;
-    private boolean favorite;
 
     public Waypoint() {
         this.name = "";
         this.latitude = 0;
         this.longitude = 0;
         this.icon = BitmapDescriptorFactory.HUE_CYAN;
-        this.favorite = false;
     }
 
     public Waypoint(String name) {
@@ -22,7 +20,6 @@ public class Waypoint {
         this.latitude = 0;
         this.longitude = 0;
         this.icon = BitmapDescriptorFactory.HUE_CYAN;
-        this.favorite = false;
     }
 
     public Waypoint(String name, double latitude, double longitude) {
@@ -30,7 +27,6 @@ public class Waypoint {
         this.latitude = latitude;
         this.longitude = longitude;
         this.icon = BitmapDescriptorFactory.HUE_CYAN;
-        this.favorite = false;
     }
 
     public Waypoint(String name, double latitude, double longitude, float icon) {
@@ -38,7 +34,6 @@ public class Waypoint {
         this.latitude = latitude;
         this.longitude = longitude;
         this.icon = icon;
-        this.favorite = false;
     }
 
     public Waypoint(String name, double latitude, double longitude, float icon, boolean favorite) {
@@ -46,7 +41,6 @@ public class Waypoint {
         this.latitude = latitude;
         this.longitude = longitude;
         this.icon = icon;
-        this.favorite = favorite;
     }
 
     public String getName() {
@@ -77,10 +71,4 @@ public class Waypoint {
         this.icon = icon;
     }
 
-    public boolean isFavorite() {
-        return favorite;
-    }
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
 }

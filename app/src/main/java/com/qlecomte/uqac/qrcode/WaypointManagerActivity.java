@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -128,31 +127,9 @@ public class WaypointManagerActivity extends Activity {
                 }
             });
 
-            final ImageView fav = (ImageView)convertView.findViewById(R.id.favorite);
-            fav.setImageResource(favoriteResource(waypoints.get(position).isFavorite()));
-            fav.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    boolean futurFavoriteState = !waypoints.get(position).isFavorite();
-
-                    waypoints.get(position).setFavorite(futurFavoriteState);
-                    DatabaseManager.get().updateWaypoint(waypoints.get(position));
-                    fav.setImageResource(favoriteResource(futurFavoriteState));
-
-                }
-            });
-
-
             return convertView;
         }
 
-        public int favoriteResource(boolean b){
-            if (b)
-                return R.drawable.starfull;
-            else
-                return R.drawable.starempty;
-
-        }
     }
 
 
