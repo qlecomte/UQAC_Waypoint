@@ -28,9 +28,9 @@ Le projet de dev mobile, à base de GPS et de QR Code
 
 **Sprint 1** (à faire pour le 4 décembre)
 
-* Quentin : Revoir le Google Play Services Location.
-* Quentin : Si plusieurs notifications, faire des sous notif "à la Gmail".
-* Quentin : Supprimer les promotions.
+* ~~Quentin : Revoir le Google Play Services Location.~~
+* ~~Quentin : Si plusieurs notifications, faire des sous notif "à la Gmail".~~
+* ~~Quentin : Supprimer les promotions.~~
 
 * Thibaud : Déplacer le menu, accessible partout (pas de bouton pour accéder au menu). Barre en bas.
 * Thibaud : Créer les modes piétons / voiture. (Bouton double état)
