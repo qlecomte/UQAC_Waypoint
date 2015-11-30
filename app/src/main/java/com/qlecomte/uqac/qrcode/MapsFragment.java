@@ -62,6 +62,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     };
 
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -173,8 +174,10 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         Log.i("Map", "setUpMap");
 
         mMap.setOnMapLongClickListener(this);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, ZOOM));
-
+        if (getArguments() == null)
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, ZOOM));
+        else
+            moveMap(getArguments().getDouble("latitude_notif"),getArguments().getDouble("longitude_notif"), ZOOM);
     }
 
     private void updateMarkersMap(){
@@ -196,7 +199,11 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     }
 
     public void moveMap(double latitude, double longitude){
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), mMap.getCameraPosition().zoom));
+        moveMap(latitude, longitude, mMap.getCameraPosition().zoom);
+    }
+
+    public void moveMap(double latitude, double longitude, float zoom){
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
     }
 
 

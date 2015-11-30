@@ -2,6 +2,7 @@ package com.qlecomte.uqac.qrcode;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -32,13 +34,13 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 60000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
      * than this value.
      */
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
     /**
      * Provides the entry point to Google Play services.
@@ -247,12 +249,34 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             //inboxStyle.setBigContentTitle(listeCloseWaypoint.size() + " Waypoints proches");
             inboxStyle.setSummaryText("Waypoint");
 
+            // Creates an explicit intent for an Activity in your app
+            Intent resultIntent = new Intent(this, MainActivity.class);
+            resultIntent.putExtra("longitude_notif", mCurrentLocation.getLongitude());
+            resultIntent.putExtra("latitude_notif", mCurrentLocation.getLatitude());
+
+            // The stack builder object will contain an artificial back stack for the
+            // started Activity.
+            // This ensures that navigating backward from the Activity leads out of
+            // your application to the Home screen.
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            // Adds the Intent that starts the Activity to the top of the stack
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+
+
             Notification summaryNotification = new NotificationCompat.Builder(this)
                     .setContentTitle(listeCloseWaypoint.size() + " Waypoints proches")
                     .setSmallIcon(R.drawable.waypointwhite)
                     .setStyle(inboxStyle)
                     .setGroup(GROUP_NOTIF_STR)
                     .setGroupSummary(true)
+                    .setOnlyAlertOnce(true)
+                    .setAutoCancel(true)
+                    .setContentIntent(resultPendingIntent)
                     .build();
 
             mNotificationManager.notify(BASE_NOTIF_ID, summaryNotification);

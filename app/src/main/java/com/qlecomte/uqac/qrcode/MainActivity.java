@@ -18,6 +18,7 @@ import com.yalantis.contextmenu.lib.interfaces.OnMenuItemLongClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends FragmentActivity implements OnMenuItemClickListener,
         OnMenuItemLongClickListener {
@@ -33,10 +34,21 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
         setContentView(R.layout.activity_main);
         fragmentManager = getSupportFragmentManager();
         initMenuFragment();
-        addFragment(new MapsFragment(), true, R.id.container);
 
-        ImageView b = (ImageView)findViewById(R.id.menu_btn);
-        b.setOnClickListener(new View.OnClickListener() {
+
+        MapsFragment mapsFragment = new MapsFragment();
+
+        if (getIntent().hasExtra("latitude_notif") && getIntent().hasExtra("longitude_notif") ) {
+            Bundle b = new Bundle();
+            b.putDouble("latitude_notif", getIntent().getDoubleExtra("latitude_notif", -1000));
+            b.putDouble("longitude_notif", getIntent().getDoubleExtra("longitude_notif", -1000));
+            mapsFragment.setArguments(b);
+        }
+
+        addFragment(mapsFragment, true, R.id.container);
+
+        ImageView i = (ImageView)findViewById(R.id.menu_btn);
+        i.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
@@ -44,6 +56,14 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
                 }
             }
         });
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     private void initMenuFragment() {
