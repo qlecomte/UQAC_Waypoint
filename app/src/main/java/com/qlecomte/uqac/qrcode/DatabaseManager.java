@@ -91,7 +91,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 w.setName(cursor.getString(1));
                 w.setLatitude(Double.parseDouble(cursor.getString(2)));
                 w.setLongitude(Double.parseDouble(cursor.getString(3)));
-                w.setIcon(Float.parseFloat(cursor.getString(5)));
+                w.setIcon(Float.parseFloat(cursor.getString(4)));
                 waypoints.add(w);
             } while (cursor.moveToNext());
         }
