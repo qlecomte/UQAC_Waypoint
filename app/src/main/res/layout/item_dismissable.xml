@@ -21,6 +21,14 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/txt_secondaryData"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="20dp" />
+
     </LinearLayout>
 
     <LinearLayout
