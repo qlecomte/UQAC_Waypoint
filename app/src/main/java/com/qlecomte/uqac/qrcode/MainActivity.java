@@ -32,19 +32,19 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
     private FragmentManager fragmentManager;
     private DialogFragment mMenuDialogFragment;
     public static final String PREFS_NAME = "PrefRange";
-
+    SharedPreferences.Editor editor;
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences range = getSharedPreferences(PREFS_NAME,0);
-        SharedPreferences.Editor editor = range.edit();
-        editor.putInt("rangeSize", 500);
-        editor.commit();
+        editor = getSharedPreferences(PREFS_NAME,0).edit();
 
+        editor.putInt("rangeSize", 500).commit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -74,26 +74,23 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent intent = new Intent(this, MainActivity.class);
+            case R.id.action_maps:
+                Intent intent = new Intent(this, WaypointManagerActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                startActivityForResult(intent, WAYPOINTMANAGER_REQUESTCODE);
                 break;
             case R.id.action_settings:
                 intent = new Intent(this,SettingsActivity.class);
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                SharedPreferences range = getSharedPreferences(PREFS_NAME,0);
-                SharedPreferences.Editor editor = range.edit();
                 if(item.getIcon()== getResources().getDrawable( R.drawable.car )){
                     item.setIcon(R.drawable.footmen);
-                    editor.putInt("rangeSize", 1500);
+                    editor.putInt("rangeSize", 1500).commit();
                 }else {
                     item.setIcon(R.drawable.car);
-                    editor.putInt("rangeSize", 500);
+                    editor.putInt("rangeSize", 500).commit();
                 }
-                editor.commit();
                 break;
             case R.id.action_qrcode:
                 intent = new Intent(this,QRCodeActivity.class);
@@ -108,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     private void initMenuFragment() {
@@ -157,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
 
         MenuObject settings = new MenuObject();
         settings.setResource(R.drawable.settings);
-
 
 
         menuObjects.add(close);
