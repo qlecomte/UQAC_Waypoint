@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
 
         editor = getSharedPreferences(PREFS_NAME,0).edit();
         editor.putInt("rangeSize", 500).commit();
+        editor = getSharedPreferences(PREFS_NAME,0).edit();
+
+        editor.putInt("rangeSize", 500).commit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
