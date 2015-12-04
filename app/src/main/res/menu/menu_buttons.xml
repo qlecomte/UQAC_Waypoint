@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_maps"
+        android:title="@string/action_maps"
+        android:icon="@drawable/waypoint"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_qrcode"
+        android:title="@string/action_qrcode"
+        android:icon="@drawable/qrcode"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_settings"
+        android:title="Settings"
+        android:icon="@drawable/settings"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_movementtype"
+        android:title="MovementType"
+        android:icon="@drawable/car"
+        app:showAsAction="always"/>
+</menu>
