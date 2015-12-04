@@ -5,10 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -26,10 +30,16 @@ import java.util.List;
 
 public class WaypointManagerActivity extends Activity {
 
+
     public SwipeToDismissTouchListener<ListViewAdapter> touchListener;
+    private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 
     private double m_currentLatitude = 0.0;
     private double m_currentLongitude = 0.0;
+
+
+    public static final String PREFS_NAME = "PrefRange";
+    SharedPreferences.Editor editor;
 
     final MyBaseAdapter myAdapter = new MyBaseAdapter();
 
@@ -54,6 +64,46 @@ public class WaypointManagerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waypoint_manager);
         init((ListView) findViewById(R.id.list_view));
+
+        editor = getSharedPreferences(PREFS_NAME,0).edit();
+        editor.putInt("rangeSize", 500).commit();
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_buttons, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_maps:
+                Intent intent = new Intent(this, WaypointManagerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivityForResult(intent, WAYPOINTMANAGER_REQUESTCODE);
+                break;
+            case R.id.action_settings:
+                intent = new Intent(this,SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_movementtype:
+                if(item.getIcon()== getResources().getDrawable( R.drawable.car )){
+                    item.setIcon(R.drawable.footmen);
+                    editor.putInt("rangeSize", 1500).commit();
+                }else {
+                    item.setIcon(R.drawable.car);
+                    editor.putInt("rangeSize", 500).commit();
+                }
+                break;
+            case R.id.action_qrcode:
+                intent = new Intent(this,QRCodeActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

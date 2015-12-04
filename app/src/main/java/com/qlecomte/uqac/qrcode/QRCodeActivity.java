@@ -2,11 +2,13 @@ package com.qlecomte.uqac.qrcode;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -24,6 +26,11 @@ public class QRCodeActivity extends Activity {
     private FrameLayout preview = null;
     private ImageScanner mScanner = null;
     private boolean previewing = true;
+
+
+    public static final String PREFS_NAME = "PrefRange";
+    SharedPreferences.Editor editor;
+    private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 
     static {
         System.loadLibrary("iconv");
@@ -47,6 +54,40 @@ public class QRCodeActivity extends Activity {
         autoFocusHandler = new Handler();
 
         preview = (FrameLayout)findViewById(R.id.camera_preview);
+
+        editor = getSharedPreferences(PREFS_NAME,0).edit();
+        editor.putInt("rangeSize", 500).commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_maps:
+                Intent intent = new Intent(this, WaypointManagerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivityForResult(intent, WAYPOINTMANAGER_REQUESTCODE);
+                break;
+            case R.id.action_settings:
+                intent = new Intent(this,SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_movementtype:
+                if(item.getIcon()== getResources().getDrawable( R.drawable.car )){
+                    item.setIcon(R.drawable.footmen);
+                    editor.putInt("rangeSize", 1500).commit();
+                }else {
+                    item.setIcon(R.drawable.car);
+                    editor.putInt("rangeSize", 500).commit();
+                }
+                break;
+            case R.id.action_qrcode:
+                intent = new Intent(this,QRCodeActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
