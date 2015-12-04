@@ -1,11 +1,17 @@
 package com.qlecomte.uqac.qrcode;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -20,11 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends FragmentActivity implements OnMenuItemClickListener,
+public class MainActivity extends AppCompatActivity implements OnMenuItemClickListener,
         OnMenuItemLongClickListener {
 
     private FragmentManager fragmentManager;
     private DialogFragment mMenuDialogFragment;
+    public static final String PREFS_NAME = "PrefRange";
 
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 
@@ -32,9 +39,18 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences range = getSharedPreferences(PREFS_NAME,0);
+        SharedPreferences.Editor editor = range.edit();
+        editor.putInt("rangeSize", 500);
+        editor.commit();
+
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
         fragmentManager = getSupportFragmentManager();
         initMenuFragment();
-
 
         MapsFragment mapsFragment = new MapsFragment();
 
@@ -47,17 +63,46 @@ public class MainActivity extends FragmentActivity implements OnMenuItemClickLis
 
         addFragment(mapsFragment, true, R.id.container);
 
-        ImageView i = (ImageView)findViewById(R.id.menu_btn);
-        i.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
-                    mMenuDialogFragment.show(fragmentManager, ContextMenuDialogFragment.TAG);
+        }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_buttons, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                break;
+            case R.id.action_settings:
+                intent = new Intent(this,SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_movementtype:
+                SharedPreferences range = getSharedPreferences(PREFS_NAME,0);
+                SharedPreferences.Editor editor = range.edit();
+                if(item.getIcon()== getResources().getDrawable( R.drawable.car )){
+                    item.setIcon(R.drawable.footmen);
+                    editor.putInt("rangeSize", 1500);
+                }else {
+                    item.setIcon(R.drawable.car);
+                    editor.putInt("rangeSize", 500);
                 }
-            }
-        });
-
-
+                editor.commit();
+                break;
+            case R.id.action_qrcode:
+                intent = new Intent(this,QRCodeActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
