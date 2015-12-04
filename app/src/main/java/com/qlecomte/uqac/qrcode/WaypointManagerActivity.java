@@ -1,8 +1,13 @@
 package com.qlecomte.uqac.qrcode;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.hudomju.swipe.SwipeToDismissTouchListener;
 import com.hudomju.swipe.adapter.ListViewAdapter;
 
@@ -22,6 +28,27 @@ public class WaypointManagerActivity extends Activity {
 
     public SwipeToDismissTouchListener<ListViewAdapter> touchListener;
 
+    private double m_currentLatitude = 0.0;
+    private double m_currentLongitude = 0.0;
+
+    final MyBaseAdapter myAdapter = new MyBaseAdapter();
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                Log.d("WaypointManagerActivity", "Receive Broadcast" + bundle.toString());
+
+                m_currentLatitude =  bundle.getDouble("latitude");
+                m_currentLongitude = bundle.getDouble("longitude");
+
+                /* Refresh the listView using the new location */
+                myAdapter.notifyDataSetChanged();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,14 +57,24 @@ public class WaypointManagerActivity extends Activity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        Intent i = new Intent (this, LocationService.class);
+        this.registerReceiver(receiver, new IntentFilter(LocationService.LOCATION));
+        this.startService(i);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         touchListener.processPendingDismisses();
+
+        this.unregisterReceiver(receiver);
     }
 
     private void init(ListView listView) {
-        final MyBaseAdapter adapter = new MyBaseAdapter();
-        listView.setAdapter(adapter);
+        listView.setAdapter(myAdapter);
         touchListener = new SwipeToDismissTouchListener<>(
                         new ListViewAdapter(listView),
                         new SwipeToDismissTouchListener.DismissCallbacks<ListViewAdapter>() {
@@ -48,7 +85,7 @@ public class WaypointManagerActivity extends Activity {
 
                             @Override
                             public void onDismiss(ListViewAdapter view, int position) {
-                                adapter.remove(position);
+                                myAdapter.remove(position);
                             }
                         });
         listView.setOnTouchListener(touchListener);
@@ -58,14 +95,13 @@ public class WaypointManagerActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (touchListener.existPendingDismisses()){
+                if (touchListener.existPendingDismisses()) {
                     touchListener.processPendingDismisses();
-                }
-                else{
+                } else {
 
                     Intent data = new Intent();
-                    data.putExtra("latitude", adapter.getItem(position).getLatitude());
-                    data.putExtra("longitude", adapter.getItem(position).getLongitude());
+                    data.putExtra("latitude", myAdapter.getItem(position).getLatitude());
+                    data.putExtra("longitude", myAdapter.getItem(position).getLongitude());
                     setResult(RESULT_OK, data);
 
                     finish();
@@ -101,8 +137,11 @@ public class WaypointManagerActivity extends Activity {
 
         class ViewHolder {
             TextView dataTextView;
+            TextView secondaryDataTextView;
+
             ViewHolder(View view) {
                 dataTextView = ((TextView) view.findViewById(R.id.txt_data));
+                secondaryDataTextView = ((TextView) view.findViewById(R.id.txt_secondaryData));
                 view.setTag(this);
             }
         }
@@ -115,7 +154,17 @@ public class WaypointManagerActivity extends Activity {
                     .inflate(R.layout.item_dismissable, parent, false))
                     : (ViewHolder) convertView.getTag();
 
-            viewHolder.dataTextView.setText(waypoints.get(position).getName());
+            Waypoint wp = waypoints.get(position);
+
+            /* Compute the distance from the current position to the waypoint */
+            float[] distanceFromPosition = new float[3];
+            Location.distanceBetween(m_currentLatitude, m_currentLongitude, wp.getLatitude(), wp.getLongitude(), distanceFromPosition);
+
+            String distanceString = (int)distanceFromPosition[0] + " m";
+
+            /* Set some infos into the viewHolder */
+            viewHolder.dataTextView.setText(wp.getName());
+            viewHolder.secondaryDataTextView.setText(distanceString);
 
             TextView undoBtn = (TextView)convertView.findViewById(R.id.txt_undo);
 
