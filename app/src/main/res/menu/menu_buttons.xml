@@ -4,6 +4,11 @@
     <item
         android:id="@+id/action_maps"
         android:title="@string/action_maps"
+        android:icon="@drawable/map"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_waypoints"
+        android:title="@string/action_waypoint"
         android:icon="@drawable/waypoint"
         app:showAsAction="always"/>
 
@@ -19,6 +24,5 @@
 
     <item android:id="@+id/action_movementtype"
         android:title="MovementType"
-        android:icon="@drawable/car"
         app:showAsAction="always"/>
 </menu>

@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,17 +30,14 @@ import com.hudomju.swipe.adapter.ListViewAdapter;
 import java.util.List;
 
 
-public class WaypointManagerActivity extends Activity {
+public class WaypointManagerActivity extends AppCompatActivity {
 
 
     public SwipeToDismissTouchListener<ListViewAdapter> touchListener;
-    private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 
     private double m_currentLatitude = 0.0;
     private double m_currentLongitude = 0.0;
 
-
-    public static final String PREFS_NAME = "PrefRange";
     SharedPreferences.Editor editor;
 
     final MyBaseAdapter myAdapter = new MyBaseAdapter();
@@ -65,39 +64,58 @@ public class WaypointManagerActivity extends Activity {
         setContentView(R.layout.activity_waypoint_manager);
         init((ListView) findViewById(R.id.list_view));
 
-        editor = getSharedPreferences(PREFS_NAME,0).edit();
-        editor.putInt("rangeSize", 500).commit();
+        editor = getPreferences(MODE_PRIVATE).edit();
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
+
+        if (getPreferences(MODE_PRIVATE).getBoolean("isCar", true)) {
+            menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
+        }
+        else{
+            menu.findItem(R.id.action_movementtype).setIcon(R.drawable.footmen);
+        }
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_maps:
-                Intent intent = new Intent(this, WaypointManagerActivity.class);
+                intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivityForResult(intent, WAYPOINTMANAGER_REQUESTCODE);
+                startActivity(intent);
+                break;
+            case R.id.action_waypoints:
                 break;
             case R.id.action_settings:
                 intent = new Intent(this,SettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                if(item.getIcon()== getResources().getDrawable( R.drawable.car )){
+                boolean isCar = getPreferences(MODE_PRIVATE).getBoolean("isCar", true);
+                if (isCar){
                     item.setIcon(R.drawable.footmen);
-                    editor.putInt("rangeSize", 1500).commit();
-                }else {
-                    item.setIcon(R.drawable.car);
+                    editor.putBoolean("isCar", false).commit();
                     editor.putInt("rangeSize", 500).commit();
+                }
+                else {
+                    item.setIcon( R.drawable.car );
+                    editor.putBoolean("isCar", true).commit();
+                    editor.putInt("rangeSize", 1500).commit();
                 }
                 break;
             case R.id.action_qrcode:
                 intent = new Intent(this,QRCodeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 break;
             default:
@@ -116,8 +134,8 @@ public class WaypointManagerActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         touchListener.processPendingDismisses();
 
         this.unregisterReceiver(receiver);

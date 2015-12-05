@@ -25,6 +25,7 @@ import com.yalantis.contextmenu.lib.interfaces.OnMenuItemLongClickListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 public class MainActivity extends AppCompatActivity implements OnMenuItemClickListener,
         OnMenuItemLongClickListener {
@@ -32,22 +33,18 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
     private FragmentManager fragmentManager;
     private DialogFragment mMenuDialogFragment;
 
-    public static final String PREFS_NAME = "PrefRange";
     SharedPreferences.Editor editor;
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editor = getSharedPreferences(PREFS_NAME,0).edit();
-        editor.putInt("rangeSize", 500).commit();
-        editor = getSharedPreferences(PREFS_NAME,0).edit();
-
-        editor.putInt("rangeSize", 500).commit();
+        editor = getPreferences(MODE_PRIVATE).edit();
+        if (!getPreferences(MODE_PRIVATE).contains("rangeSize")){
+            editor.putInt("rangeSize", 1500);
+        }
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -66,37 +63,55 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
 
         addFragment(mapsFragment, true, R.id.container);
 
-        }
+    }
 
     public boolean onCreateOptionsMenu(Menu menu) {
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
+
+        if (getPreferences(MODE_PRIVATE).getBoolean("isCar", true)) {
+            menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
+        }
+        else{
+            menu.findItem(R.id.action_movementtype).setIcon(R.drawable.footmen);
+        }
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_maps:
-                Intent intent = new Intent(this, WaypointManagerActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                break;
+            case R.id.action_waypoints:
+                intent = new Intent(this, WaypointManagerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivityForResult(intent, WAYPOINTMANAGER_REQUESTCODE);
                 break;
             case R.id.action_settings:
                 intent = new Intent(this,SettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                if(item.getIcon()== getResources().getDrawable( R.drawable.car )){
+                boolean isCar = getPreferences(MODE_PRIVATE).getBoolean("isCar", true);
+                if (isCar){
                     item.setIcon(R.drawable.footmen);
-                    editor.putInt("rangeSize", 1500).commit();
-                }else {
-                    item.setIcon(R.drawable.car);
+                    editor.putBoolean("isCar", false).commit();
                     editor.putInt("rangeSize", 500).commit();
+                }
+                else {
+                    item.setIcon( R.drawable.car );
+                    editor.putBoolean("isCar", true).commit();
+                    editor.putInt("rangeSize", 1500).commit();
                 }
                 break;
             case R.id.action_qrcode:
                 intent = new Intent(this,QRCodeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 break;
             default:

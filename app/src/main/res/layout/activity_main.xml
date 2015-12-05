@@ -24,10 +24,5 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:layout_gravity="center_horizontal|bottom" />
 
-    <![CDATA[
-
-        //app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-]]>
-
 </LinearLayout>
 

@@ -3,18 +3,18 @@
 
     <string name="hello_world">Hello world!</string>
 
-    <string name="title_activity_qrcode">QRCodeActivity</string>
-    <string name="title_activity_result_qrcode">ResultQRCodeActivity</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-    <string name="title_activity_waypoint_manager">WaypointManagerActivity</string>
+    <string name="title_activity_qrcode">QR Code</string>
+    <string name="title_activity_result_qrcode">Resultat QRCode</string>
+    <string name="title_activity_maps">Carte</string>
+    <string name="title_activity_settings">Réglages</string>
+    <string name="title_activity_waypoint_manager">Gestionnaire des points d\'interêt</string>
 
     <string name="menuprincipal">Bouton Menu Principal</string>
     <string name="action_settings">Settings</string>
     <string name="action_qrcode">QrCode</string>
     <string name="action_maps">Carte</string>
+    <string name="action_waypoint">WaypointManager</string>
     <string name="action_movementType">MovementType</string>
-
 
     <string name="deleted">Waypoint supprimé</string>
     <string name="undo">Annuler</string>
