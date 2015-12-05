@@ -36,13 +36,6 @@ public class Waypoint {
         this.icon = icon;
     }
 
-    public Waypoint(String name, double latitude, double longitude, float icon, boolean favorite) {
-        this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.icon = icon;
-    }
-
     public String getName() {
         return name;
     }

@@ -18,11 +18,11 @@
         app:showAsAction="always"/>
 
     <item android:id="@+id/action_settings"
-        android:title="Settings"
+        android:title="@string/action_settings"
         android:icon="@drawable/settings"
         app:showAsAction="always"/>
 
     <item android:id="@+id/action_movementtype"
-        android:title="MovementType"
+        android:title="@string/action_movementType"
         app:showAsAction="always"/>
 </menu>

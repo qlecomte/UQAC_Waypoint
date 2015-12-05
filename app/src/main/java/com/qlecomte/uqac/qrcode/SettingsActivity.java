@@ -2,23 +2,21 @@ package com.qlecomte.uqac.qrcode;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    SharedPreferences prefs;
+    private SharedPreferences prefs;
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
-    SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,10 +110,6 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                 PreferenceFragment fragment = (PreferenceFragment)getFragmentManager().findFragmentById(R.id.content);
                 Preference customPref = fragment.findPreference("language");
                 customPref.setSummary(sharedPreferences.getString(key, ""));
-                break;
-            case "notification_proximity":
-                Toast toast = Toast.makeText(getApplicationContext(), "Notif changées", Toast.LENGTH_SHORT);
-                toast.show();
                 break;
             default:
                 break;

@@ -17,7 +17,6 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,58 +30,52 @@ import java.util.List;
 public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, OnInitListener
 {
 
-    protected static final String TAG = "location-updates-sample";
+    private static final String TAG = "location-updates-sample";
 
     public static final String LOCATION = "com.qlecomte.uqac.qrcode.locationChanged";
 
-    public static final double DISTANCE_WAYPOINT_ALERT_IN_METERS = 500;
+    private static final double DISTANCE_WAYPOINT_ALERT_IN_METERS = 500;
 
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 60000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 60000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
      * than this value.
      */
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
     /**
      * Provides the entry point to Google Play services.
      */
-    protected GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
 
     /**
      * Stores parameters for requests to the FusedLocationProviderApi.
      */
-    protected LocationRequest mLocationRequest;
+    private LocationRequest mLocationRequest;
 
     /**
      * Represents a geographical location.
      */
-    protected Location mCurrentLocation;
+    private Location mCurrentLocation;
 
     /**
      * Tracks the status of the location updates request. Value changes when the user presses the
      * Start Updates and Stop Updates buttons.
      */
-    protected Boolean mRequestingLocationUpdates;
+    private Boolean mRequestingLocationUpdates;
 
     /**
      * Access to preferences
      */
-    protected SharedPreferences prefs;
-
-    /**
-     * Boolean saying if notifications are activated
-     */
-    private boolean mNotificationsActivated;
+    private SharedPreferences prefs;
 
     private NotificationManager mNotificationManager;
     private static final String GROUP_NOTIF_STR = "group_notif";
     private static final int BASE_NOTIF_ID = 2653;
-    private int MY_DATA_CHECK_CODE = 674;
     private TextToSpeech mTts;
     private String notifVocale;
 
@@ -119,12 +112,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-
-        super.onStart(intent, startId);
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         super.onStartCommand(intent, flags, startId);
@@ -150,12 +137,12 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
 
-    public boolean getNotifActivated()
+    private boolean getNotifActivated()
     {
         return prefs.getBoolean("notification_proximity",false);
     }
 
-    public boolean getVocalActivated()
+    private boolean getVocalActivated()
     {
         return prefs.getBoolean("vocal_synthesis", false);
     }
@@ -212,7 +199,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             notificationAlert();
     }
 
-    protected synchronized void buildGoogleApiClient() {
+    private synchronized void buildGoogleApiClient() {
         Log.i(TAG, "Building GoogleApiClient");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -222,7 +209,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         createLocationRequest();
     }
 
-    protected void createLocationRequest() {
+    private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
 
         // Sets the desired interval for active location updates. This interval is
@@ -238,11 +225,11 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    protected void startLocationUpdates() {
+    private void startLocationUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
-    protected void stopLocationUpdates() {
+    private void stopLocationUpdates() {
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.

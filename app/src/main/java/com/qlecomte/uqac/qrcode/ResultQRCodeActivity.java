@@ -19,7 +19,7 @@ public class ResultQRCodeActivity extends AppCompatActivity implements OnInitLis
 
     private TextToSpeech mTts;
     private String contenuQR;
-    private int MY_DATA_CHECK_CODE = 674;
+    private final int MY_DATA_CHECK_CODE = 674;
 
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 

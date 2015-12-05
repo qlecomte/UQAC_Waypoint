@@ -1,6 +1,5 @@
 package com.qlecomte.uqac.qrcode;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.hudomju.swipe.SwipeToDismissTouchListener;
 import com.hudomju.swipe.adapter.ListViewAdapter;
 
@@ -33,16 +31,16 @@ import java.util.List;
 public class WaypointManagerActivity extends AppCompatActivity {
 
 
-    public SwipeToDismissTouchListener<ListViewAdapter> touchListener;
+    private SwipeToDismissTouchListener<ListViewAdapter> touchListener;
 
     private double m_currentLatitude = 0.0;
     private double m_currentLongitude = 0.0;
 
-    SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
 
-    final MyBaseAdapter myAdapter = new MyBaseAdapter();
+    private final MyBaseAdapter myAdapter = new MyBaseAdapter();
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
@@ -203,9 +201,9 @@ public class WaypointManagerActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
-        class ViewHolder {
+        final class ViewHolder {
             TextView dataTextView;
-            TextView secondaryDataTextView;
+            final TextView secondaryDataTextView;
 
             ViewHolder(View view) {
                 dataTextView = ((TextView) view.findViewById(R.id.txt_data));

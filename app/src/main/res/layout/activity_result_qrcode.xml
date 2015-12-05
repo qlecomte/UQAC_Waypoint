@@ -10,19 +10,22 @@
         android:layout_height="wrap_content"
         android:id="@+id/text"
         android:layout_marginTop="24dp"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Contenu du QR Code :"
+        android:text="@string/contenu_qrcode"
         android:id="@+id/textView"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"/>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:id="@+id/useless"/>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"

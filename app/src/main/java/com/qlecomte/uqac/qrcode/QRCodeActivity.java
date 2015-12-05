@@ -30,7 +30,7 @@ public class QRCodeActivity extends AppCompatActivity {
     private ImageScanner mScanner = null;
     private boolean previewing = true;
 
-    SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 
     static {

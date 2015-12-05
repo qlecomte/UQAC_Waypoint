@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
@@ -24,8 +22,6 @@ import com.yalantis.contextmenu.lib.interfaces.OnMenuItemLongClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.prefs.Preferences;
 
 public class MainActivity extends AppCompatActivity implements OnMenuItemClickListener,
         OnMenuItemLongClickListener {
@@ -33,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
     private FragmentManager fragmentManager;
     private DialogFragment mMenuDialogFragment;
 
-    SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
     private static final int WAYPOINTMANAGER_REQUESTCODE = 698;
 
     @Override
@@ -118,11 +114,6 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     private void initMenuFragment() {
