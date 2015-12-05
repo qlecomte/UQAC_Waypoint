@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -50,6 +51,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 PreferenceFragment fragment = (PreferenceFragment)getFragmentManager().findFragmentById(android.R.id.content);
                 Preference customPref = fragment.findPreference("language");
                 customPref.setSummary(sharedPreferences.getString(key, ""));
+                break;
+            case "notification_proximity":
+                Toast toast = Toast.makeText(getApplicationContext(), "Notif changées", Toast.LENGTH_SHORT);
+                toast.show();
                 break;
             default:
                 break;

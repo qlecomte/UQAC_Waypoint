@@ -6,12 +6,18 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -22,7 +28,7 @@ import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
+public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, OnInitListener
 {
 
     protected static final String TAG = "location-updates-sample";
@@ -63,11 +69,22 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
      */
     protected Boolean mRequestingLocationUpdates;
 
+    /**
+     * Access to preferences
+     */
+    protected SharedPreferences prefs;
+
+    /**
+     * Boolean saying if notifications are activated
+     */
+    private boolean mNotificationsActivated;
 
     private NotificationManager mNotificationManager;
     private static final String GROUP_NOTIF_STR = "group_notif";
     private static final int BASE_NOTIF_ID = 2653;
-
+    private int MY_DATA_CHECK_CODE = 674;
+    private TextToSpeech mTts;
+    private String notifVocale;
 
     @Override
     public IBinder onBind(Intent arg0)
@@ -76,6 +93,17 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
     @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+
+            if (Build.VERSION.SDK_INT < 21) {
+                mTts.speak(notifVocale, TextToSpeech.QUEUE_FLUSH, null);
+            } else {
+                mTts.speak(notifVocale, TextToSpeech.QUEUE_FLUSH, null, null);
+            }
+        }
+    }
+    @Override
     public void onCreate() {
         super.onCreate();
 
@@ -83,9 +111,17 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        prefs  = PreferenceManager.getDefaultSharedPreferences(this);
+        mTts = new TextToSpeech(this, this);
         // Kick off the process of building a GoogleApiClient and requesting the LocationServices
         // API.
         buildGoogleApiClient();
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+
+        super.onStart(intent, startId);
     }
 
     @Override
@@ -111,6 +147,17 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         mGoogleApiClient.disconnect();
 
         super.onDestroy();
+    }
+
+
+    public boolean getNotifActivated()
+    {
+        return prefs.getBoolean("notification_proximity",false);
+    }
+
+    public boolean getVocalActivated()
+    {
+        return prefs.getBoolean("vocal_synthesis", false);
     }
 
     @Override
@@ -159,8 +206,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
+
         broadcastLocation();
-        notificationAlert();
+        if(getNotifActivated())
+            notificationAlert();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -268,6 +317,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                     );
 
 
+
             Notification summaryNotification = new NotificationCompat.Builder(this)
                     .setContentTitle(listeCloseWaypoint.size() + " Waypoints proches")
                     .setSmallIcon(R.drawable.waypointwhite)
@@ -279,7 +329,14 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                     .setContentIntent(resultPendingIntent)
                     .build();
 
+            if (getVocalActivated())
+            {
+                notifVocale = "Il y a " + listeCloseWaypoint.size() + " points d'intérêts à proximité";
+                mTts.speak(notifVocale, TextToSpeech.QUEUE_FLUSH, null);
+            }
+
             mNotificationManager.notify(BASE_NOTIF_ID, summaryNotification);
+
         }
     }
 
