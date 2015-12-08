@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -26,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        editor = getPreferences(MODE_PRIVATE).edit();
+        editor = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).edit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -36,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        if (getPreferences(MODE_PRIVATE).getBoolean("isCar", true)) {
+        if (getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true)) {
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
         }
         else{
@@ -63,16 +64,20 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             case R.id.action_settings:
                 break;
             case R.id.action_movementtype:
-                boolean isCar = getPreferences(MODE_PRIVATE).getBoolean("isCar", true);
+                boolean isCar = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true);
                 if (isCar){
+                    Toast.makeText(this, "Mode piéton activé", Toast.LENGTH_SHORT).show();
                     item.setIcon(R.drawable.footmen);
+                    int distFoot = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_foot", 500);
                     editor.putBoolean("isCar", false).commit();
-                    editor.putInt("rangeSize", 500).commit();
+                    editor.putInt("rangedist", distFoot).commit();
                 }
                 else {
+                    Toast.makeText(this, "Mode voiture activé", Toast.LENGTH_SHORT).show();
                     item.setIcon( R.drawable.car );
+                    int distCar = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_car", 1500);
                     editor.putBoolean("isCar", true).commit();
-                    editor.putInt("rangeSize", 1500).commit();
+                    editor.putInt("rangedist", distCar).commit();
                 }
                 break;
             case R.id.action_qrcode:

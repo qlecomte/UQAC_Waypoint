@@ -3,6 +3,7 @@ package com.qlecomte.uqac.qrcode;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -12,12 +13,12 @@ import android.widget.TextView;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.content.Intent;
+import android.widget.Toast;
 
 import java.util.Locale;
 
-public class ResultQRCodeActivity extends AppCompatActivity implements OnInitListener {
+public class InfoActivity extends AppCompatActivity{
 
-    private TextToSpeech mTts;
     private String contenuQR;
     private final int MY_DATA_CHECK_CODE = 674;
 
@@ -28,17 +29,13 @@ public class ResultQRCodeActivity extends AppCompatActivity implements OnInitLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_result_qrcode);
+        setContentView(R.layout.activity_info);
 
         contenuQR = getIntent().getStringExtra("MyQRCode");
         TextView textView = (TextView)findViewById(R.id.text);
-
         textView.setText(contenuQR);
-        Intent checkTTSIntent = new Intent();
-        checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        startActivityForResult(checkTTSIntent, MY_DATA_CHECK_CODE);
 
-        editor = getPreferences(MODE_PRIVATE).edit();
+        editor = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).edit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -48,7 +45,7 @@ public class ResultQRCodeActivity extends AppCompatActivity implements OnInitLis
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        if (getPreferences(MODE_PRIVATE).getBoolean("isCar", true)) {
+        if (getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true)) {
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
         }
         else{
@@ -78,16 +75,20 @@ public class ResultQRCodeActivity extends AppCompatActivity implements OnInitLis
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                boolean isCar = getPreferences(MODE_PRIVATE).getBoolean("isCar", true);
+                boolean isCar = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true);
                 if (isCar){
+                    Toast.makeText(this, "Mode piéton activé", Toast.LENGTH_SHORT).show();
                     item.setIcon(R.drawable.footmen);
+                    int distFoot = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_foot", 500);
                     editor.putBoolean("isCar", false).commit();
-                    editor.putInt("rangeSize", 500).commit();
+                    editor.putInt("rangedist", distFoot).commit();
                 }
                 else {
+                    Toast.makeText(this, "Mode voiture activé", Toast.LENGTH_SHORT).show();
                     item.setIcon( R.drawable.car );
+                    int distCar = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_car", 1500);
                     editor.putBoolean("isCar", true).commit();
-                    editor.putInt("rangeSize", 1500).commit();
+                    editor.putInt("rangedist", distCar).commit();
                 }
                 break;
             case R.id.action_qrcode:
@@ -100,55 +101,4 @@ public class ResultQRCodeActivity extends AppCompatActivity implements OnInitLis
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-    protected void onActivityResult( int requestCode, int resultCode, Intent data) {
-        if (requestCode == MY_DATA_CHECK_CODE) {
-            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
-                // Succès, au moins un moteur de TTS à été trouvé, on l'instancie
-                mTts = new TextToSpeech(this, this);
-
-                if (mTts.isLanguageAvailable(Locale.FRANCE) == TextToSpeech.LANG_COUNTRY_AVAILABLE) {
-                    mTts.setLanguage(Locale.FRANCE);
-                }
-
-
-            } else {
-                // Echec, aucun moteur n'a été trouvé, on propose à l'utilisateur d'en installer un depuis le Market
-                Intent installIntent = new Intent();
-                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                startActivity(installIntent);
-            }
-        }
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-
-            if (Build.VERSION.SDK_INT < 21) {
-                mTts.speak(contenuQR, TextToSpeech.QUEUE_FLUSH, null);
-            } else {
-                mTts.speak(contenuQR, TextToSpeech.QUEUE_FLUSH, null, null);
-            }
-        }
-    }
-
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-        if(mTts !=null){
-            mTts.stop();
-            mTts.shutdown();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mTts != null)
-            mTts.shutdown();
-    }
-
 }

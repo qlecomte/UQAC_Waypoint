@@ -3,6 +3,7 @@ package com.qlecomte.uqac.qrcode;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -37,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editor = getPreferences(MODE_PRIVATE).edit();
-        if (!getPreferences(MODE_PRIVATE).contains("rangeSize")){
+        editor = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).edit();
+        if (!getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).contains("rangeSize")){
             editor.putInt("rangeSize", 1500);
         }
 
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        if (getPreferences(MODE_PRIVATE).getBoolean("isCar", true)) {
+        if (getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true)) {
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
         }
         else{
@@ -93,16 +94,20 @@ public class MainActivity extends AppCompatActivity implements OnMenuItemClickLi
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                boolean isCar = getPreferences(MODE_PRIVATE).getBoolean("isCar", true);
+                boolean isCar = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true);
                 if (isCar){
+                    Toast.makeText(this, "Mode piéton activé", Toast.LENGTH_SHORT).show();
                     item.setIcon(R.drawable.footmen);
+                    int distFoot = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_foot", 500);
                     editor.putBoolean("isCar", false).commit();
-                    editor.putInt("rangeSize", 500).commit();
+                    editor.putInt("rangedist", distFoot).commit();
                 }
                 else {
+                    Toast.makeText(this, "Mode voiture activé", Toast.LENGTH_SHORT).show();
                     item.setIcon( R.drawable.car );
+                    int distCar = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_car", 1500);
                     editor.putBoolean("isCar", true).commit();
-                    editor.putInt("rangeSize", 1500).commit();
+                    editor.putInt("rangedist", distCar).commit();
                 }
                 break;
             case R.id.action_qrcode:

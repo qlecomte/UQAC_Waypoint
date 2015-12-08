@@ -34,18 +34,16 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     public static final String LOCATION = "com.qlecomte.uqac.qrcode.locationChanged";
 
-    private static final double DISTANCE_WAYPOINT_ALERT_IN_METERS = 500;
-
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 60000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 20000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
      * than this value.
      */
-    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
 
     /**
      * Provides the entry point to Google Play services.
@@ -147,6 +145,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         return prefs.getBoolean("vocal_synthesis", false);
     }
 
+    private int getNotifDistance(){
+        return getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getInt("rangedist", 1500);
+    }
+
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "Connected to GoogleApiClient");
@@ -173,6 +175,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         }
 
         broadcastLocation();
+        if(getNotifActivated())
+            notificationAlert();
     }
 
     @Override
@@ -257,24 +261,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         for (Waypoint w : listeWaypoints) {
 
-            if(calculDistance(mCurrentLocation, w) <= DISTANCE_WAYPOINT_ALERT_IN_METERS)
+            if(calculDistance(mCurrentLocation, w) <= getNotifDistance())
             {
                 listeCloseWaypoint.add(w);
-                /*Notification notif = new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.waypointwhite)
-                        .setContentTitle("Point d'intérêt proche !")
-                        .setAutoCancel(true)
-                        .setContentText("Point d'intérêt à moins de 500m : " + w.getName())
-                        .setGroup(GROUP_NOTIF_STR)
-                        .setGroupSummary(true)
-                        .build();
-
-
-                // mId allows you to update the notification later on.
-                mNotificationManager.notify(BASE_NOTIF_ID+index, notif);*/
-
-
-
             }
         }
 

@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -56,7 +58,7 @@ public class QRCodeActivity extends AppCompatActivity {
 
         preview = (FrameLayout)findViewById(R.id.camera_preview);
 
-        editor = getPreferences(MODE_PRIVATE).edit();
+        editor = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).edit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -66,7 +68,7 @@ public class QRCodeActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        if (getPreferences(MODE_PRIVATE).getBoolean("isCar", true)) {
+        if (getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true)) {
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
         }
         else{
@@ -96,16 +98,20 @@ public class QRCodeActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                boolean isCar = getPreferences(MODE_PRIVATE).getBoolean("isCar", true);
+                boolean isCar = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true);
                 if (isCar){
+                    Toast.makeText(this, "Mode piéton activé", Toast.LENGTH_SHORT).show();
                     item.setIcon(R.drawable.footmen);
+                    int distFoot = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_foot", 500);
                     editor.putBoolean("isCar", false).commit();
-                    editor.putInt("rangeSize", 500).commit();
+                    editor.putInt("rangedist", distFoot).commit();
                 }
                 else {
+                    Toast.makeText(this, "Mode voiture activé", Toast.LENGTH_SHORT).show();
                     item.setIcon( R.drawable.car );
+                    int distCar = PreferenceManager.getDefaultSharedPreferences(this).getInt("rangedist_car", 1500);
                     editor.putBoolean("isCar", true).commit();
-                    editor.putInt("rangeSize", 1500).commit();
+                    editor.putInt("rangedist", distCar).commit();
                 }
                 break;
             case R.id.action_qrcode:
@@ -223,7 +229,7 @@ public class QRCodeActivity extends AppCompatActivity {
     };
 
     private void handleResult(final String str){
-        Intent i = new Intent(this, ResultQRCodeActivity.class);
+        Intent i = new Intent(this, InfoActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         i.putExtra("MyQRCode", str);
         startActivity(i);

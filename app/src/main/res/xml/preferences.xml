@@ -10,6 +10,20 @@
     <PreferenceScreen
         android:title="Notifications">
 
+        <com.qlecomte.uqac.qrcode.IntEditTextPreference android:title="Distance de notification - Piéton"
+            android:defaultValue="500"
+            android:key="rangedist_foot"
+            android:numeric="integer"
+            android:inputType="number"
+            />
+
+        <com.qlecomte.uqac.qrcode.IntEditTextPreference android:title="Distance de notification - Voiture"
+            android:defaultValue="1500"
+            android:key="rangedist_car"
+            android:numeric="integer"
+            android:inputType="number"
+            />
+
         <CheckBoxPreference android:title="Notification de proximité"
             android:defaultValue="false"
             android:summary="Une notification sera reçue chaque fois que vous serez proche d'un point d'interêt."
