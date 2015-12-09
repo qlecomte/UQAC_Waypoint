@@ -1,14 +1,17 @@
 package com.qlecomte.uqac.qrcode;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -31,15 +34,24 @@ public class InfoActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
 
-        contenuQR = getIntent().getStringExtra("MyQRCode");
-        TextView textView = (TextView)findViewById(R.id.text);
-        textView.setText(contenuQR);
-
         editor = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).edit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+
+        // Hydrating the view
+        Template t = DatabaseManager.get().getTemplate(Integer.parseInt(getIntent().getStringExtra("CodeTemplate")));
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(t.getTitle());
+
+        ((TextView)findViewById(R.id.summary)).setText(t.getSummary());
+
+        Drawable d = getResources().getDrawable(getResources().getIdentifier(t.getPathImage(), "drawable", getPackageName()));
+        ((ImageView)findViewById(R.id.image)).setImageDrawable(d);
+
     }
+
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -51,6 +63,8 @@ public class InfoActivity extends AppCompatActivity{
         else{
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.footmen);
         }
+
+
 
         return true;
     }

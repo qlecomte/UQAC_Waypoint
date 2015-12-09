@@ -6,27 +6,6 @@
     android:orientation="vertical"
     tools:context="com.qlecomte.uqac.qrcode.InfoActivity">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/text"
-        android:layout_marginTop="24dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/contenu_qrcode"
-        android:id="@+id/textView"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"/>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:id="@+id/useless"/>
-
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
@@ -34,7 +13,35 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:layout_gravity="center_horizontal|bottom" />
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:id="@+id/image"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/imgjoconde" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/summary"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="@android:color/black"
+            android:textSize="17sp"
+            android:paddingBottom="16dp"
+            android:paddingTop="8dp" />
+
+    </ScrollView>
 </LinearLayout>

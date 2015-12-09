@@ -14,10 +14,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,7 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.List;
 
 
-public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
+public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -119,6 +121,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                                 .icon(BitmapDescriptorFactory.defaultMarker(WAYPOINT_MARKER)));
 
                         Waypoint w = new Waypoint(nomMarqueur, point.latitude, point.longitude, WAYPOINT_MARKER);
+                        w.setIdTemplate(-1);
+
                         DatabaseManager.get().addWaypoint(w);
 
 
@@ -177,6 +181,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
         mMap.setOnMapLongClickListener(this);
         mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
+        mMap.setOnInfoWindowClickListener(this);
 
         if (getArguments() == null)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, ZOOM));
@@ -193,6 +198,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(w.getLatitude(), w.getLongitude()))
                     .title(w.getName())
+                    .snippet(String.valueOf(w.getIdTemplate()))
                     .icon(BitmapDescriptorFactory.defaultMarker(w.getIcon())));
         }
 
@@ -226,7 +232,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         }
 
         @Override
-        public View getInfoContents(Marker marker) {
+        public View getInfoContents(final Marker marker) {
             markerShowingInfoWindow = marker;
 
             resultReceiver = new AddressResultReceiver(new Handler());
@@ -250,6 +256,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
             ((TextView)myContentsView.findViewById(R.id.title)).setText(marker.getTitle());
 
+            if (marker.getSnippet() == null || Integer.parseInt(marker.getSnippet()) == -1){
+                myContentsView.findViewById(R.id.button_plus).setVisibility(View.GONE);
+            }
+            else{
+                myContentsView.findViewById(R.id.button_plus).setVisibility(View.VISIBLE);
+            }
 
             // Crade, mais l'API google Maps V2 est moisie, donc on fait avec ce qu'on a...
             if (!title.equals(marker.getTitle())){
@@ -284,11 +296,19 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
                 if (markerShowingInfoWindow != null && updateInfo) {
                     updateInfo = false;
-                    markerShowingInfoWindow.hideInfoWindow();
+                    //markerShowingInfoWindow.hideInfoWindow();
                     markerShowingInfoWindow.showInfoWindow();
                 }
             }
         }
     }
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Intent i = new Intent(getActivity(), InfoActivity.class);
+        i.putExtra("CodeTemplate", marker.getSnippet());
+        i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(i);
+        //Toast.makeText(getActivity(), marker.getTitle(), Toast.LENGTH_SHORT).show();
+    }
 }

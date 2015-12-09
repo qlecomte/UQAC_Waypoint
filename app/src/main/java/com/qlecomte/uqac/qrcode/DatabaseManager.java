@@ -1,10 +1,17 @@
 package com.qlecomte.uqac.qrcode;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,46 +31,135 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // Logcat tag
     private static final String LOG = "Database Manager";
 
-    // Database Version
-    private static final int DATABASE_VERSION = 1;
-
     // Database Name
-    private static final String DATABASE_NAME = "ProjectDB";
+    private static final String DATABASE_PATH = MyAppSingleton.getContext().getFilesDir().getPath() + "/../databases/";
+    private static final String DATABASE_NAME = "WaypointDB";
 
     // Table names
-    private static final String TABLE_WAYPOINTS = "waypointsTable";
+    private static final String TABLE_WAYPOINTS = "waypointTable";
+    private static final String TABLE_TEMPLATE = "templateTable";
 
     // Common column names
     private static final String KEY_ID = "id";
+    private static final String KEY_LATITUDE = "latitude";
+    private static final String KEY_LONGITUDE = "longitude";
 
     // Waypoints Column Names
     private static final String KEY_NAME = "name";
-    private static final String KEY_LATITUDE = "latitude";
-    private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_ICON = "icon";
+    private static final String KEY_ID_TEMPLATE = "id_template";
 
-    // Table Create Statement
-    private static final String CREATE_WAYPOINT_TABLE = "CREATE TABLE " + TABLE_WAYPOINTS + " ( "
-            + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + KEY_NAME + " TEXT, "
-            + KEY_LATITUDE +" REAL, "
-            + KEY_LONGITUDE +" REAL, "
-            + KEY_ICON + " INTEGER ) ";
+    // Template Column Names
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_PATHIMAGE = "pathImage";
+    private static final String KEY_SUMMARY = "summary";
+
+
+
+    //The Android's default system path of your application database.
+
+    private SQLiteDatabase myDataBase;
 
     private DatabaseManager() {
-        super(MyAppSingleton.getContext(), DATABASE_NAME, null, DATABASE_VERSION);
+        super(MyAppSingleton.getContext(), DATABASE_NAME, null, 1);
+        try {
+            createDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String myPath = DATABASE_PATH + DATABASE_NAME;
+        myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+    }
+
+    /**
+     * Creates a empty database on the system and rewrites it with your own database.
+     * */
+    public void createDataBase() throws IOException {
+
+        boolean dbExist = checkDataBase();
+
+        if(!dbExist){
+            //By calling this method and empty database will be created into the default system path
+            //of your application so we are gonna be able to overwrite that database with our database.
+            this.getReadableDatabase();
+            try {
+                copyDataBase();
+            } catch (IOException e) {
+                throw new Error("Error copying database");
+            }
+
+        }
+    }
+
+    /**
+     * Check if the database already exist to avoid re-copying the file each time you open the application.
+     * @return true if it exists, false if it doesn't
+     */
+    private boolean checkDataBase(){
+
+        SQLiteDatabase checkDB = null;
+
+        try{
+            String myPath = DATABASE_PATH + DATABASE_NAME;
+            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+
+        }catch(SQLiteException e){
+            //database does't exist yet.
+
+        }
+
+        if(checkDB != null){
+            checkDB.close();
+        }
+
+        return checkDB != null;
+    }
+
+    /**
+     * Copies your database from your local assets-folder to the just created empty database in the
+     * system folder, from where it can be accessed and handled.
+     * This is done by transfering bytestream.
+     * */
+    private void copyDataBase() throws IOException{
+
+        //Open your local db as the input stream
+        InputStream myInput = MyAppSingleton.getContext().getAssets().open(DATABASE_NAME);
+
+        // Path to the just created empty db
+        String outFileName = DATABASE_PATH + DATABASE_NAME;
+
+        //Open the empty db as the output stream
+        OutputStream myOutput = new FileOutputStream(outFileName);
+
+        //transfer bytes from the inputfile to the outputfile
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = myInput.read(buffer))>0){
+            myOutput.write(buffer, 0, length);
+        }
+
+        //Close the streams
+        myOutput.flush();
+        myOutput.close();
+        myInput.close();
+
+    }
+
+    @Override
+    public synchronized void close() {
+        if(myDataBase != null)
+            myDataBase.close();
+        super.close();
+
     }
 
     @Override
     public void onCreate(SQLiteDatabase arg0) {
-        arg0.execSQL(CREATE_WAYPOINT_TABLE);
-
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-        arg0.execSQL("DROP TABLE IF EXISTS " + TABLE_WAYPOINTS);
-        this.onCreate(arg0);
     }
 
 
@@ -76,6 +172,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(KEY_LATITUDE, w.getLatitude());
         values.put(KEY_LONGITUDE, w.getLongitude());
         values.put(KEY_ICON, w.getIcon());
+        values.put(KEY_ID_TEMPLATE, -1);
 
         db.insert(TABLE_WAYPOINTS, null, values);
     }
@@ -92,6 +189,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 w.setLatitude(Double.parseDouble(cursor.getString(2)));
                 w.setLongitude(Double.parseDouble(cursor.getString(3)));
                 w.setIcon(Float.parseFloat(cursor.getString(4)));
+                w.setIdTemplate(Integer.parseInt(cursor.getString(5)));
                 waypoints.add(w);
             } while (cursor.moveToNext());
         }
@@ -100,7 +198,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         return waypoints;
     }
-
     public void deleteWaypoint(Waypoint part) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_WAYPOINTS,
@@ -111,9 +208,25 @@ public class DatabaseManager extends SQLiteOpenHelper {
         deleteWaypoint(w);
         return w;
     }
-    public void deleteWaypoints(){
+
+    // Template
+    public Template getTemplate(int id) {
+        Template t = new Template();
+        String query = "SELECT * FROM " + TABLE_TEMPLATE + " WHERE " + KEY_ID + " = " + id;
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WAYPOINTS);
-        db.execSQL(CREATE_WAYPOINT_TABLE);
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                t = new Template();
+                t.setTitle(cursor.getString(1));
+                t.setPathImage(cursor.getString(2));
+                t.setLatitude(Double.parseDouble(cursor.getString(3)));
+                t.setLongitude(Double.parseDouble(cursor.getString(4)));
+                t.setSummary(cursor.getString(5));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return t;
     }
 }

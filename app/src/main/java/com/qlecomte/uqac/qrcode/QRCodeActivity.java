@@ -231,7 +231,7 @@ public class QRCodeActivity extends AppCompatActivity {
     private void handleResult(final String str){
         Intent i = new Intent(this, InfoActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        i.putExtra("MyQRCode", str);
+        i.putExtra("CodeTemplate", str);
         startActivity(i);
 
     }

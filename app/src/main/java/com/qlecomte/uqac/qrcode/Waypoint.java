@@ -7,6 +7,7 @@ public class Waypoint {
     private double latitude;
     private double longitude;
     private float icon;
+    private int idTemplate;
 
     public Waypoint() {
         this.name = "";
@@ -64,4 +65,10 @@ public class Waypoint {
         this.icon = icon;
     }
 
+    public int getIdTemplate() {
+        return idTemplate;
+    }
+    public void setIdTemplate(int idTemplate) {
+        this.idTemplate = idTemplate;
+    }
 }
