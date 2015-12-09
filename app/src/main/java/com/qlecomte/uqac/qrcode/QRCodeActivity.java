@@ -58,7 +58,7 @@ public class QRCodeActivity extends AppCompatActivity {
 
         preview = (FrameLayout)findViewById(R.id.camera_preview);
 
-        editor = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).edit();
+        editor = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).edit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -68,7 +68,7 @@ public class QRCodeActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        if (getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true)) {
+        if (getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).getBoolean("isCar", true)) {
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
         }
         else{
@@ -98,7 +98,7 @@ public class QRCodeActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.action_movementtype:
-                boolean isCar = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true);
+                boolean isCar = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).getBoolean("isCar", true);
                 if (isCar){
                     Toast.makeText(this, "Mode piéton activé", Toast.LENGTH_SHORT).show();
                     item.setIcon(R.drawable.footmen);

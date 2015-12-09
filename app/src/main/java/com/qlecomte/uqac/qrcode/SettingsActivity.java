@@ -27,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        editor = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).edit();
+        editor = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).edit();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_buttons, menu);
 
-        if (getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true)) {
+        if (getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).getBoolean("isCar", true)) {
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.car);
         }
         else{
@@ -64,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             case R.id.action_settings:
                 break;
             case R.id.action_movementtype:
-                boolean isCar = getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getBoolean("isCar", true);
+                boolean isCar = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).getBoolean("isCar", true);
                 if (isCar){
                     Toast.makeText(this, "Mode piéton activé", Toast.LENGTH_SHORT).show();
                     item.setIcon(R.drawable.footmen);

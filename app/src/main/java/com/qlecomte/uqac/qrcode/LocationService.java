@@ -146,7 +146,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
     private int getNotifDistance(){
-        return getSharedPreferences(MyAppSingleton.getPrefName(), MODE_PRIVATE).getInt("rangedist", 1500);
+        return getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).getInt("rangedist", 1500);
     }
 
     @Override

@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -40,6 +44,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private String nomMarqueur;
     private Marker myLocation;
 
+    private View v;
+
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
@@ -61,7 +67,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_maps, container, false);
+        v = inflater.inflate(R.layout.fragment_maps, container, false);
 
         getChildFragmentManager()
                 .beginTransaction()
@@ -109,6 +115,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                         mMap.addMarker(new MarkerOptions()
                                 .position(point)
                                 .title(nomMarqueur)
+                                .snippet("test")
                                 .icon(BitmapDescriptorFactory.defaultMarker(WAYPOINT_MARKER)));
 
                         Waypoint w = new Waypoint(nomMarqueur, point.latitude, point.longitude, WAYPOINT_MARKER);
@@ -169,6 +176,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         Log.i("Map", "setUpMap");
 
         mMap.setOnMapLongClickListener(this);
+        mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
+
         if (getArguments() == null)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SAGUENAY, ZOOM));
         else
@@ -201,5 +210,85 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoom));
     }
 
+    class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
+        private View myContentsView;
+        private AddressResultReceiver resultReceiver;
+        private Marker markerShowingInfoWindow;
+
+        private boolean updateInfo;
+        private String title;
+
+        MyInfoWindowAdapter(){
+            myContentsView = LayoutInflater.from(getContext()).inflate(R.layout.infobulle, null);
+            updateInfo = false;
+            title = "";
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            markerShowingInfoWindow = marker;
+
+            resultReceiver = new AddressResultReceiver(new Handler());
+            // Fetch Address
+            Location loc = new Location("dummyprovider");
+            loc.setLatitude(marker.getPosition().latitude);
+            loc.setLongitude(marker.getPosition().longitude);
+
+            Intent intent = new Intent(getActivity(), FetchAddressIntentService.class);
+
+            // Pass the result receiver as an extra to the service.
+            intent.putExtra(Constants.RECEIVER, resultReceiver);
+
+            // Pass the location data as an extra to the service.
+            intent.putExtra(Constants.LOCATION_DATA_EXTRA, loc);
+
+            // Start the service. If the service isn't already running, it is instantiated and started
+            // (creating a process for it if needed); if it is running then it remains running. The
+            // service kills itself automatically once all intents are processed.
+            getActivity().startService(intent);
+
+            ((TextView)myContentsView.findViewById(R.id.title)).setText(marker.getTitle());
+
+
+            // Crade, mais l'API google Maps V2 est moisie, donc on fait avec ce qu'on a...
+            if (!title.equals(marker.getTitle())){
+                title = marker.getTitle();
+                updateInfo = true;
+
+                ((TextView)myContentsView.findViewById(R.id.address)).setText("");
+            }
+
+            return myContentsView;
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        class AddressResultReceiver extends ResultReceiver {
+
+            public AddressResultReceiver(Handler handler) {
+                super(handler);
+            }
+
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                // Display the address string or an error message sent from the intent service.
+                String mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+
+                if (resultCode == Constants.SUCCESS_RESULT) {
+                    ((TextView)myContentsView.findViewById(R.id.address)).setText(mAddressOutput);
+                }
+
+                if (markerShowingInfoWindow != null && updateInfo) {
+                    updateInfo = false;
+                    markerShowingInfoWindow.hideInfoWindow();
+                    markerShowingInfoWindow.showInfoWindow();
+                }
+            }
+        }
+    }
 
 }
