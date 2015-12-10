@@ -115,7 +115,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                         mMap.addMarker(new MarkerOptions()
                                 .position(point)
                                 .title(nomMarqueur)
-                                .snippet("test")
+                                .snippet("-1")
                                 .icon(BitmapDescriptorFactory.defaultMarker(WAYPOINT_MARKER)));
 
                         Waypoint w = new Waypoint(nomMarqueur, point.latitude, point.longitude, WAYPOINT_MARKER);

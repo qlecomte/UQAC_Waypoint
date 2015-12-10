@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.speech.tts.TextToSpeech;
@@ -40,18 +41,24 @@ public class InfoActivity extends AppCompatActivity{
         setSupportActionBar(myToolbar);
 
         // Hydrating the view
-        Template t = DatabaseManager.get().getTemplate(Integer.parseInt(getIntent().getStringExtra("CodeTemplate")));
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setTitle(t.getTitle());
+        if (isCodeValid(getIntent().getStringExtra("CodeTemplate"))){
+            chooseGoodLayout(true);
 
-        ((TextView)findViewById(R.id.summary)).setText(t.getSummary());
+            Template t = DatabaseManager.get().getTemplate(Integer.parseInt(getIntent().getStringExtra("CodeTemplate")));
+            if (getSupportActionBar() != null)
+                getSupportActionBar().setTitle(t.getTitle());
 
-        Drawable d = getResources().getDrawable(getResources().getIdentifier(t.getPathImage(), "drawable", getPackageName()));
-        ((ImageView)findViewById(R.id.image)).setImageDrawable(d);
+            ((TextView)findViewById(R.id.summary)).setText(t.getSummary());
+
+            Drawable d = getResources().getDrawable(getResources().getIdentifier(t.getPathImage(), "drawable", getPackageName()));
+            ((ImageView)findViewById(R.id.image)).setImageDrawable(d);
+        }
+
+        else {
+            chooseGoodLayout(false);
+        }
 
     }
-
-
 
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -63,8 +70,6 @@ public class InfoActivity extends AppCompatActivity{
         else{
             menu.findItem(R.id.action_movementtype).setIcon(R.drawable.footmen);
         }
-
-
 
         return true;
     }
@@ -114,5 +119,30 @@ public class InfoActivity extends AppCompatActivity{
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isCodeValid(String code){
+        try{
+
+            int c = Integer.parseInt(code);
+            return c == 1 || c == 2 || c == 3 || c == 4 || c == 5 || c == 101 || c == 102 || c == 103;
+
+        }catch (NumberFormatException e){
+            return false;
+        }catch (NullPointerException e){
+            return false;
+        }
+
+    }
+
+    private void chooseGoodLayout(boolean b){
+        if (b){
+            findViewById(R.id.valid_layout).setVisibility(View.VISIBLE);
+            findViewById(R.id.invalid_layout).setVisibility(View.GONE);
+        }
+        else{
+            findViewById(R.id.valid_layout).setVisibility(View.GONE);
+            findViewById(R.id.invalid_layout).setVisibility(View.VISIBLE);
+        }
     }
 }
