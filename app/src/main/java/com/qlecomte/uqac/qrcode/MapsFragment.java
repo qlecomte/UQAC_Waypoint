@@ -46,8 +46,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private String nomMarqueur;
     private Marker myLocation;
 
-    private View v;
-
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
@@ -69,7 +67,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_maps, container, false);
+        View v = inflater.inflate(R.layout.fragment_maps, container, false);
 
         getChildFragmentManager()
                 .beginTransaction()
@@ -218,7 +216,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
-        private View myContentsView;
+        private View myContentsView = LayoutInflater.from(getContext()).inflate(R.layout.infobulle, null);
         private AddressResultReceiver resultReceiver;
         private Marker markerShowingInfoWindow;
 
@@ -226,7 +224,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         private String title;
 
         MyInfoWindowAdapter(){
-            myContentsView = LayoutInflater.from(getContext()).inflate(R.layout.infobulle, null);
             updateInfo = false;
             title = "";
         }
@@ -305,10 +302,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Intent i = new Intent(getActivity(), InfoActivity.class);
-        i.putExtra("CodeTemplate", marker.getSnippet());
-        i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        startActivity(i);
-        //Toast.makeText(getActivity(), marker.getTitle(), Toast.LENGTH_SHORT).show();
+        if (marker.getSnippet() != null && Integer.parseInt(marker.getSnippet()) != -1){
+            Intent i = new Intent(getActivity(), InfoActivity.class);
+            i.putExtra("CodeTemplate", marker.getSnippet());
+            i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(i);
+        }
+
     }
 }
