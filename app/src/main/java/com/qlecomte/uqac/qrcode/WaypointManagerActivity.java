@@ -52,6 +52,11 @@ public class WaypointManagerActivity extends AppCompatActivity {
                 m_currentLatitude =  bundle.getDouble("latitude");
                 m_currentLongitude = bundle.getDouble("longitude");
 
+                Location l = new Location("DummyProvider");
+                l.setLatitude(m_currentLatitude);
+                l.setLongitude(m_currentLongitude);
+                Waypoint.sortList(myAdapter.waypoints, l);
+
                 /* Refresh the listView using the new location */
                 myAdapter.notifyDataSetChanged();
             }
@@ -184,7 +189,14 @@ public class WaypointManagerActivity extends AppCompatActivity {
 
     class MyBaseAdapter extends BaseAdapter {
 
-        private final List<Waypoint> waypoints = DatabaseManager.get().getWaypoints();
+        private final List<Waypoint> waypoints;
+
+        public MyBaseAdapter(){
+            waypoints = DatabaseManager.get().getWaypoints();
+
+
+        }
+
 
         @Override
         public int getCount() {

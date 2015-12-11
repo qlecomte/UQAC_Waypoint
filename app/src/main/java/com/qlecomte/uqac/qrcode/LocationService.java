@@ -257,6 +257,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private void notificationAlert(){
 
         List<Waypoint> listeWaypoints = DatabaseManager.get().getWaypoints();
+        Waypoint.sortList(listeWaypoints, mCurrentLocation);
+
         List<Waypoint> listeCloseWaypoint = new ArrayList<>();
 
         for (Waypoint w : listeWaypoints) {
